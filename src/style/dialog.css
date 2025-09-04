@@ -13,58 +13,117 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.75);
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.3), rgba(75, 0, 130, 0.3));
+    backdrop-filter: blur(10px);
     z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
 }
 
 .dialog-container {
-    font-family: monospace;
-    width: 75%;
-    max-width: 30rem;
-    min-width: 20rem;
-    background-color: var(--main-bg-color);
-    /*border-radius: 0.3rem;*/
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    width: 90%;
+    max-width: 500px;
+    min-width: 320px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
     overflow: hidden;
+    animation: slideUp 0.3s ease;
 }
 
 .dialog-container.ready {
-    height: 100%;
-    min-height: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .dialog-container button, .dialog-container select, .dialog-container input {
-    font-family: monospace;
+    font-family: inherit;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
 }
 
 .dialog-container button {
-    font-size: var(--font-size);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+.dialog-container button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+
+.dialog-container button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dialog-container select {
     text-overflow: ellipsis;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.dialog-container select:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.dialog-container input {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.dialog-container input:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .dialog-block {
 }
 
 .dialog-header {
-    background-color: var(--header-bg-color);
-    height: var(--header-height);
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    height: 60px;
     overflow: hidden;
     display: flex;
     align-items: center;
     width: auto;
     position: initial;
+    padding: 0 24px;
 }
 
 .dialog-header span.dialog-title {
     display: inline-block;
-    padding: 0 0.5rem;
+    padding: 0;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .dialog-body {
-    padding: var(--block-top-padding) 0.5rem var(--block-bottom-padding);
-    background-color: var(--control-buttons-bg-color);
+    padding: 24px;
+    background: white;
     overflow: auto;
 }
 
@@ -134,7 +193,88 @@
 .controls {
     display: grid;
     grid-template-columns: [labels] 35% [controls] 65%;
-    padding: 1rem;
-    grid-gap: 0.2rem;
+    padding: 0 0 16px 0;
+    grid-gap: 12px;
     align-items: center;
+}
+
+.controls .label {
+    color: #374151;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .dialog-container {
+        width: 95%;
+        max-width: none;
+        margin: 20px;
+        border-radius: 12px;
+    }
+    
+    .dialog-header {
+        padding: 0 16px;
+        height: 50px;
+    }
+    
+    .dialog-header span.dialog-title {
+        font-size: 16px;
+    }
+    
+    .dialog-body {
+        padding: 16px;
+    }
+    
+    .controls {
+        grid-template-columns: 1fr;
+        grid-gap: 8px;
+    }
+    
+    .controls .label {
+        margin-bottom: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dialog-container {
+        width: 100%;
+        margin: 10px;
+        border-radius: 8px;
+    }
+    
+    .dialog-header {
+        padding: 0 12px;
+        height: 48px;
+    }
+    
+    .dialog-body {
+        padding: 12px;
+    }
+    
+    .dialog-container button {
+        width: 100%;
+        margin-bottom: 8px;
+    }
 }

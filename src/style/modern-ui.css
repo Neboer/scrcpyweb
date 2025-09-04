@@ -700,10 +700,32 @@ body::before {
 
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+    
     .quick-connect-panel {
         position: static;
         margin: var(--spacing-md);
         max-width: none;
+        width: calc(100vw - 2 * var(--spacing-md));
+        box-sizing: border-box;
+    }
+    
+    .form-group {
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .form-input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .btn {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: var(--spacing-xs);
     }
     
     .modern-device-list {
@@ -714,5 +736,55 @@ body::before {
     .confirm-dialog {
         margin: var(--spacing-md);
         max-width: calc(100vw - var(--spacing-xl));
+        width: calc(100vw - 2 * var(--spacing-md));
+        box-sizing: border-box;
+    }
+    
+    .toggle-switch {
+        bottom: var(--spacing-sm);
+        right: var(--spacing-sm);
+    }
+    
+    .toggle-btn {
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-xs);
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-connect-panel {
+        margin: var(--spacing-sm);
+        width: calc(100vw - 2 * var(--spacing-sm));
+        padding: var(--spacing-md);
+    }
+    
+    .panel-header h2 {
+        font-size: var(--font-lg);
+    }
+    
+    .form-input {
+        padding: var(--spacing-sm);
+        font-size: var(--font-sm);
+    }
+    
+    .btn {
+        padding: var(--spacing-sm);
+        font-size: var(--font-sm);
+    }
+    
+    .confirm-dialog {
+        margin: var(--spacing-sm);
+        width: calc(100vw - 2 * var(--spacing-sm));
+        padding: var(--spacing-md);
+    }
+    
+    .confirm-dialog-actions {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+    
+    .confirm-dialog-actions .btn {
+        width: 100%;
+        margin: 0;
     }
 }

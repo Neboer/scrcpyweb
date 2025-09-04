@@ -177,44 +177,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                     </button>
                 </form>
                 
-                ${this.savedDevices.length > 0 ? html`
-                    <div class="saved-devices">
-                        <div class="saved-devices-header">
-                            <h3 class="saved-devices-title">已保存的设备</h3>
-                        </div>
-                        ${this.savedDevices.map(device => `
-                            <div class="saved-device-item">
-                                <div class="saved-device-info">
-                                    <div class="saved-device-name">${device.name}</div>
-                                    <div class="saved-device-details">${device.host}:${device.port}</div>
-                                </div>
-                                <div class="saved-device-actions">
-                                    <button 
-                                        class="btn btn-icon btn-primary" 
-                                        title="连接"
-                                        data-device-name="${device.name}"
-                                        data-device-host="${device.host}"
-                                        data-device-port="${device.port}"
-                                        onclick="QuickConnect.getInstance().handleSavedDeviceConnect(this)"
-                                    >
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M8 5v14l11-7z"/>
-                                        </svg>
-                                    </button>
-                                    <button 
-                                        class="btn btn-icon btn-secondary" 
-                                        title="删除"
-                                        onclick="QuickConnect.getInstance().removeSavedDevice('${device.id}')"
-                                    >
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                ` : ''}
             </div>
         `;
 
@@ -260,6 +222,34 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         
         if (name && host && port) {
             this.connectToDevice({ name, host, port });
+        }
+    }
+
+    public removeSavedDevice(deviceId: string): void {
+        // 从内存中移除设备
+        this.savedDevices = this.savedDevices.filter(device => device.id !== deviceId);
+        
+        // 同时从devices.json文件中移除
+        this.updateDevicesFile();
+        
+        // 重新渲染界面
+        this.updateContent();
+    }
+
+    private async updateDevicesFile(): Promise<void> {
+        try {
+            const response = await fetch('/api/devices', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.savedDevices)
+            });
+            if (!response.ok) {
+                console.error('Failed to update devices file');
+            }
+        } catch (error) {
+            console.error('Error updating devices file:', error);
         }
     }
 

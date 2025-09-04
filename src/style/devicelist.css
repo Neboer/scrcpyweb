@@ -26,10 +26,13 @@ body.list {
 }
 
 #devices {
-    padding: 20px 0;
+    padding: 20px;
     width: 100%;
+    max-width: 100vw;
     height: calc(100% - 40px);
     overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 body.stream #devices {
@@ -160,10 +163,12 @@ body.list #device_list_menu {
 #devices .services {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid var(--device-border-color);
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 #devices .services .desc-block {
@@ -180,6 +185,9 @@ body.list #device_list_menu {
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: fit-content;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 #devices .services button.btn-primary {
@@ -349,4 +357,70 @@ body.list #device_list_menu {
     padding: 5px 20px 5px;
     font-size: larger;
     font-weight: bolder;
+}
+
+/* 响应式设计 - 移动端优化 */
+@media (max-width: 768px) {
+    #devices {
+        padding: 15px 10px;
+    }
+    
+    #devices .services {
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+    }
+    
+    #devices .services button.btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        min-width: auto;
+    }
+    
+    .device-action-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    #devices .device-name {
+        font-size: 110%;
+    }
+    
+    #devices .device-model {
+        font-size: 100%;
+    }
+    
+    #devices .tracker-name {
+        padding: 5px 15px 5px;
+        font-size: large;
+    }
+}
+
+@media (max-width: 480px) {
+    #devices {
+        padding: 10px 8px;
+    }
+    
+    #devices .services {
+        gap: 6px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    #devices .services .desc-block {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    #devices .services button.btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+    
+    .device-action-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
 }

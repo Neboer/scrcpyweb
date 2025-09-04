@@ -69,7 +69,7 @@ export class FileListingClient extends ManagerClient<ParamsFileListing, never> i
         const entry = document.createElement('div');
         entry.classList.add('file-listing', blockClass);
         entry.appendChild(
-            BaseDeviceTracker.buildLink(
+            BaseDeviceTracker.buildButton(
                 {
                     action: ACTION.FILE_LISTING,
                     udid: descriptor.udid,

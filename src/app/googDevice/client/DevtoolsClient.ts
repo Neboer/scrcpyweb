@@ -363,7 +363,7 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
         const entry = document.createElement('div');
         entry.classList.add('devtools', blockClass);
         entry.appendChild(
-            BaseDeviceTracker.buildLink(
+            BaseDeviceTracker.buildButton(
                 {
                     action: ACTION.DEVTOOLS,
                     udid: descriptor.udid,

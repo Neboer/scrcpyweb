@@ -59,7 +59,7 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
         this.deviceName = descriptor['ro.product.model'];
         this.TAG = `ConfigureScrcpy[${this.udid}]`;
         this.createStreamReceiver(params);
-        this.setTitle(`${this.deviceName}. Configure stream`);
+        this.setTitle(`${this.deviceName} - 配置流`);
         this.background = this.createUI();
     }
 
@@ -96,7 +96,7 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
         }
         let text = this.statusText;
         if (this.connectionCount) {
-            text = `${text}. Other clients: ${this.connectionCount}.`;
+            text = `${text} - 其他客户端: ${this.connectionCount}`;
         }
         this.connectionStatusElement.innerText = text;
     }
@@ -120,7 +120,7 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
 
     private onDisplayInfo = (infoArray: DisplayCombinedInfo[]): void => {
         // console.log(this.TAG, 'Received info');
-        this.statusText = 'Ready';
+        this.statusText = '就绪';
         this.updateStatus();
         this.dialogContainer?.classList.add('ready');
         const select = this.displayIdSelectElement || document.createElement('select');
@@ -175,7 +175,7 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
 
     private onDisconnected = (): void => {
         // console.log(this.TAG, 'Disconnected');
-        this.statusText = 'Disconnected';
+        this.statusText = '已断开连接';
         this.updateStatus();
         if (this.okButton) {
             this.okButton.disabled = true;
@@ -432,7 +432,7 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
         playerWrapper.classList.add('controls');
         const playerLabel = document.createElement('label');
         playerLabel.classList.add('label');
-        playerLabel.innerText = 'Player:';
+        playerLabel.innerText = '播放器:';
         playerWrapper.appendChild(playerLabel);
         const playerSelect = (this.playerSelectElement = document.createElement('select'));
         playerSelect.classList.add('input');
@@ -457,7 +457,7 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
         controls.classList.add('controls', 'control-wrapper');
         const displayIdLabel = document.createElement('label');
         displayIdLabel.classList.add('label');
-        displayIdLabel.innerText = 'Display:';
+        displayIdLabel.innerText = '显示器:';
         controls.appendChild(displayIdLabel);
         if (!this.displayIdSelectElement) {
             this.displayIdSelectElement = document.createElement('select');
@@ -468,22 +468,22 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
         this.displayIdSelectElement.onchange = this.onDisplayIdChange;
 
         this.appendBasicInput(controls, {
-            label: 'Bitrate',
+            label: '比特率',
             id: 'bitrate',
             range: { min: 524288, max: 8388608, step: 524288, formatter: Util.prettyBytes },
         });
         this.appendBasicInput(controls, {
-            label: 'Max FPS',
+            label: '最大帧率',
             id: 'maxFps',
             range: { min: 1, max: 60, step: 1 },
         });
-        this.appendBasicInput(controls, { label: 'I-Frame interval', id: 'iFrameInterval' });
+        this.appendBasicInput(controls, { label: 'I帧间隔', id: 'iFrameInterval' });
         const fitLabel = document.createElement('label');
-        fitLabel.innerText = 'Fit to screen';
+        fitLabel.innerText = '适应屏幕';
         fitLabel.classList.add('label');
         controls.appendChild(fitLabel);
         const fitToggle = new ToolBoxCheckbox(
-            'Fit to screen',
+            '适应屏幕',
             { off: SvgImage.Icon.TOGGLE_OFF, on: SvgImage.Icon.TOGGLE_ON },
             'fit_to_screen',
         );
@@ -501,13 +501,13 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
             const element = el.getElement();
             this.onFitToScreenChanged(element.checked);
         });
-        this.appendBasicInput(controls, { label: 'Max width', id: 'maxWidth' });
-        this.appendBasicInput(controls, { label: 'Max height', id: 'maxHeight' });
-        this.appendBasicInput(controls, { label: 'Codec options', id: 'codecOptions' });
+        this.appendBasicInput(controls, { label: '最大宽度', id: 'maxWidth' });
+        this.appendBasicInput(controls, { label: '最大高度', id: 'maxHeight' });
+        this.appendBasicInput(controls, { label: '编解码器选项', id: 'codecOptions' });
 
         const encoderLabel = document.createElement('label');
         encoderLabel.classList.add('label');
-        encoderLabel.innerText = 'Encoder:';
+        encoderLabel.innerText = '编码器:';
         controls.appendChild(encoderLabel);
         if (!this.encoderSelectElement) {
             this.encoderSelectElement = document.createElement('select');
@@ -523,19 +523,19 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
 
         const resetSettingsButton = (this.resetSettingsButton = document.createElement('button'));
         resetSettingsButton.classList.add('button');
-        resetSettingsButton.innerText = 'Reset settings';
+        resetSettingsButton.innerText = '重置设置';
         resetSettingsButton.addEventListener('click', this.resetSettings);
         buttonsWrapper.appendChild(resetSettingsButton);
 
         const loadSettingsButton = (this.loadSettingsButton = document.createElement('button'));
         loadSettingsButton.classList.add('button');
-        loadSettingsButton.innerText = 'Load settings';
+        loadSettingsButton.innerText = '加载设置';
         loadSettingsButton.addEventListener('click', this.loadSettings);
         buttonsWrapper.appendChild(loadSettingsButton);
 
         const saveSettingsButton = (this.saveSettingsButton = document.createElement('button'));
         saveSettingsButton.classList.add('button');
-        saveSettingsButton.innerText = 'Save settings';
+        saveSettingsButton.innerText = '保存设置';
         saveSettingsButton.addEventListener('click', this.saveSettings);
         buttonsWrapper.appendChild(saveSettingsButton);
 
@@ -547,14 +547,14 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
         statusElement.classList.add('subtitle');
         this.connectionStatusElement = statusElement;
         dialogFooter.appendChild(statusElement);
-        this.statusText = `Connecting...`;
+        this.statusText = `连接中...`;
         this.updateStatus();
 
         // const cancelButton = (this.cancelButton = document.createElement('button'));
         // cancelButton.innerText = 'Cancel';
         // cancelButton.addEventListener('click', this.cancel);
         const okButton = (this.okButton = document.createElement('button'));
-        okButton.innerText = 'Open';
+        okButton.innerText = '打开';
         okButton.disabled = true;
         okButton.addEventListener('click', this.openStream);
         dialogFooter.appendChild(okButton);

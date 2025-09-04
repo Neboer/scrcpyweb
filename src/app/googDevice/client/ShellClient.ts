@@ -125,7 +125,7 @@ export class ShellClient extends ManagerClient<ParamsShell, never> {
         const entry = document.createElement('div');
         entry.classList.add('shell', blockClass);
         entry.appendChild(
-            BaseDeviceTracker.buildLink(
+            BaseDeviceTracker.buildButton(
                 {
                     action: ACTION.SHELL,
                     udid: descriptor.udid,
