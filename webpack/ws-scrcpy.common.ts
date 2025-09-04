@@ -5,6 +5,7 @@ import webpack from 'webpack';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import GeneratePackageJsonPlugin from '@dead50f7/generate-package-json-webpack-plugin';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import { mergeWithDefaultConfig } from './build.config.utils';
 
 export const PROJECT_ROOT = path.resolve(__dirname, '..');
@@ -105,6 +106,14 @@ const front: webpack.Configuration = {
         new MiniCssExtractPlugin(),
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer'],
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.join(PROJECT_ROOT, 'src/public/favicon.svg'),
+                    to: path.join(CLIENT_DIST_PATH, 'favicon.svg'),
+                },
+            ],
         }),
     ],
     resolve: {

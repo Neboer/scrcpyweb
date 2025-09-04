@@ -109,14 +109,14 @@ body.list #device_list_menu {
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
     color: white;
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
 .device-action-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
 .device-delete-btn {
@@ -199,6 +199,18 @@ body.list #device_list_menu {
 #devices .services button.btn-primary:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+}
+
+/* 紫色按钮样式 - 用于播放器按钮 */
+#devices .services button.btn-purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+#devices .services button.btn-purple:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 }
 
 /* 蓝色按钮样式 - 用于右侧按钮 */

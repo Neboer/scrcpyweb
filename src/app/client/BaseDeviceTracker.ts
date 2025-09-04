@@ -92,7 +92,7 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
         const hash = `#!${new URLSearchParams(q).toString()}`;
         const url = `${protocol}//${hostname}:${port}${pathname}${hash}`;
         const button = document.createElement('button');
-        button.className = `btn btn-primary device-action-btn`;
+        button.className = `btn btn-purple device-action-btn`;
         button.innerText = text;
         button.onclick = () => {
             window.open(url, '_blank', 'noopener,noreferrer');
