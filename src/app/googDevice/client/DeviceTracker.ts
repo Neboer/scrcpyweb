@@ -106,7 +106,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
             if (!playerFullName || !playerCodeName) {
                 return;
             }
-            const link = DeviceTracker.buildLink(
+            const button = DeviceTracker.buildButton(
                 {
                     action,
                     udid,
@@ -116,7 +116,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                 decodeURIComponent(playerFullName),
                 this.params,
             );
-            item.appendChild(link);
+            item.appendChild(button);
         });
     }
 
@@ -187,6 +187,17 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                     <div class="sdk-version">${device['ro.build.version.sdk']}</div>
                 </div>
                 <div class="device-state" title="State: ${device.state}"></div>
+                <div class="device-actions">
+                    <button class="btn btn-secondary btn-icon device-delete-btn" 
+                            title="删除设备" 
+                            data-udid="${device.udid}"
+                            data-name="${device['ro.product.manufacturer']} ${device['ro.product.model']}"
+                            onclick="DeviceTracker.handleDeleteDevice(this)">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div id="${servicesId}" class="services"></div>
         </div>`.content;
@@ -345,6 +356,42 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         }
     }
 
+    public static handleDeleteDevice(button: HTMLButtonElement): void {
+        const udid = button.getAttribute('data-udid');
+        const name = button.getAttribute('data-name') || udid;
+        
+        import('../../ui/ConfirmDialog').then(({ ConfirmDialog }) => {
+            ConfirmDialog.confirm({
+                title: '删除设备',
+                message: `确定要删除设备"${name}"吗？`,
+                confirmText: '删除',
+                cancelText: '取消',
+                confirmClass: 'btn-primary',
+                onConfirm: async () => {
+                    try {
+                        // 这里调用删除设备的 API
+                        const response = await fetch(`/api/devices/${udid}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (response.ok) {
+                            // 从界面上移除设备
+                            const deviceElement = button.closest('.device');
+                            if (deviceElement) {
+                                deviceElement.remove();
+                            }
+                        } else {
+                            alert('删除设备失败');
+                        }
+                    } catch (error) {
+                        console.error('Failed to delete device:', error);
+                        alert('删除设备失败');
+                    }
+                }
+            });
+        });
+    }
+
     protected getChannelCode(): string {
         return ChannelCode.GTRC;
     }
@@ -360,3 +407,6 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         }
     }
 }
+
+// Make DeviceTracker available globally for onclick handlers
+(window as any).DeviceTracker = DeviceTracker;

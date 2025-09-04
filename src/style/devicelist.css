@@ -13,6 +13,8 @@
         --device-list-stripe-color: hsl(0, 0%, 16%);
         --device-list-default-color: hsl(0, 0%, 14%);
         --device-list-hover-color: hsl(218, 17%, 18%);
+        --device-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --device-card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 }
 
@@ -64,12 +66,69 @@ body.list #device_list_menu {
     background-color: var(--device-list-stripe-color);
 }
 
-#devices .device-header {
-    padding: 2px 0;
+#devices .device {
+    margin: 16px 20px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: var(--device-card-shadow);
+    transition: all 0.3s ease;
+    background: var(--device-list-default-color);
 }
 
-#devices .device-header div {
+#devices .device:hover {
+    box-shadow: var(--device-card-hover-shadow);
+    transform: translateY(-2px);
+}
+
+#devices .device-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0;
+    margin-bottom: 16px;
+}
+
+#devices .device-header > div {
     display: inline-flex;
+}
+
+#devices .device-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.device-action-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.device-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.device-delete-btn {
+    padding: 8px;
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--device-border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.device-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: rgb(239, 68, 68);
 }
 
 #devices .device-name {
@@ -96,6 +155,42 @@ body.list #device_list_menu {
     font-size: 75%;
     color: var(--url-color);
     margin-left: 0.2em;
+}
+
+#devices .services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--device-border-color);
+}
+
+#devices .services .desc-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#devices .services button.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#devices .services button.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+#devices .services button.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 #devices .device-state {
