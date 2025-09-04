@@ -806,3 +806,24 @@ body::before {
         margin: 0;
     }
 }
+
+/* Device Actions */
+.device-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Spinner Animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}

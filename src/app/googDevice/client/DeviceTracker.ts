@@ -37,6 +37,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
     private static deleteEventListenerInitialized = false;
     protected static tools: Set<Tool> = new Set();
     protected tableId = 'goog_device_list';
+    private pendingDeletions: Map<number, { deviceElement: Element | null, button: HTMLButtonElement, udid: string }> = new Map();
 
     public static start(hostItem: HostItem): DeviceTracker {
         const url = this.buildUrlForTracker(hostItem).toString();
@@ -108,18 +109,14 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                 confirmClass: 'btn-primary',
                 onConfirm: async () => {
                     try {
-                        // 从界面上移除设备
-                        const deviceElement = button.closest('.device');
-                        if (deviceElement && deviceElement instanceof HTMLElement) {
-                            deviceElement.style.transition = 'all 0.3s ease';
-                            deviceElement.style.opacity = '0';
-                            deviceElement.style.transform = 'translateX(-100%)';
-                            setTimeout(() => {
-                                deviceElement.remove();
-                            }, 300);
-                        }
+                        // Show loading state on the button
+                        button.disabled = true;
+                        button.innerHTML = '<svg class="spinner" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2v4m0 12v4m10-10h-4M6 12H2m15.364 6.364l-2.828-2.828M8.464 8.464L5.636 5.636m12.728 0l-2.828 2.828m-7.072 7.072l-2.828 2.828"/></svg>';
 
-                        // 发送消息到后端删除设备数据
+                        // Store device element reference for later removal
+                        const deviceElement = button.closest('.device');
+
+                        // Send message to backend to disconnect and delete device
                         const message: Message = {
                             id: this.getNextId(),
                             type: 'DELETE_DEVICE',
@@ -129,11 +126,18 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                         };
 
                         if (this.ws && this.ws.readyState === this.ws.OPEN) {
+                            // Store the device element in a map for the response handler
+                            this.pendingDeletions.set(message.id, { deviceElement, button, udid });
                             this.ws.send(JSON.stringify(message));
+                        } else {
+                            throw new Error('WebSocket连接已断开');
                         }
                     } catch (error) {
                         console.error('Failed to delete device:', error);
                         alert('删除设备失败，请重试');
+                        // Restore button state
+                        button.disabled = false;
+                        button.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
                     }
                 }
             });
@@ -142,6 +146,45 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
 
     protected onSocketOpen(): void {
         // nothing here;
+    }
+
+    protected onSocketMessage(event: MessageEvent): void {
+        let message: Message;
+        try {
+            message = JSON.parse(event.data);
+        } catch (error: any) {
+            console.error('DeviceTracker', error.message);
+            console.log('DeviceTracker', event.data);
+            return;
+        }
+
+        // Handle DELETE_DEVICE_RESULT
+        if (message.type === 'DELETE_DEVICE_RESULT') {
+            const result = message.data as { success: boolean; udid: string; message: string };
+            const pending = this.pendingDeletions.get(message.id);
+            
+            if (pending) {
+                this.pendingDeletions.delete(message.id);
+                
+                if (result.success) {
+                    // Success - the server will send an updated device list
+                    // Just log the success message
+                    console.log(`Device ${result.udid} deleted successfully: ${result.message}`);
+                    
+                    // Optional: Show a success notification to the user
+                    // You could add a toast notification here
+                } else {
+                    // Failed - restore button and show error
+                    pending.button.disabled = false;
+                    pending.button.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';
+                    alert(`删除设备失败: ${result.message}`);
+                }
+            }
+            return;
+        }
+
+        // Handle other messages using parent class
+        super.onSocketMessage(event);
     }
 
     protected setIdAndHostName(id: string, hostName: string): void {

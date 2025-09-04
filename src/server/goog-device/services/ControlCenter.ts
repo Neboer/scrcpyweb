@@ -137,6 +137,19 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
         return this.deviceMap.get(udid);
     }
 
+    public removeDevice(udid: string): boolean {
+        const device = this.deviceMap.get(udid);
+        if (device) {
+            device.off('update', this.onDeviceUpdate);
+            this.deviceMap.delete(udid);
+            this.descriptors.delete(udid);
+            // Emit a special event to trigger device list update
+            this.emit('device-removed', udid);
+            return true;
+        }
+        return false;
+    }
+
     public getId(): string {
         return this.id;
     }

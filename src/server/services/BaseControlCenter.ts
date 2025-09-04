@@ -3,6 +3,7 @@ import { TypedEmitter } from '../../common/TypedEmitter';
 
 export interface ControlCenterEvents<T> {
     device: T;
+    'device-removed': string; // udid
 }
 
 export abstract class BaseControlCenter<T> extends TypedEmitter<ControlCenterEvents<T>> {
