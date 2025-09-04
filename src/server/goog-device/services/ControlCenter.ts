@@ -110,6 +110,7 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
             return;
         }
         this.tracker = await this.startTracker();
+        // List existing ADB devices on startup
         const list = await this.client.listDevices();
         list.forEach((device) => {
             const { id, type } = device;
