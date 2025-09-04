@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { spawn } from 'child_process';
-import WebSocket from 'ws';
+// import WebSocket from 'ws'; // Removed unused import
 import { v4 as uuidv4 } from 'uuid';
 
 interface ConnectRequest {
@@ -56,13 +56,13 @@ export class QuickConnectHandler {
                 connectedAt: new Date()
             });
 
-            res.json({
+            return res.json({
                 success: true,
                 deviceId,
             } as ConnectResponse);
         } catch (error) {
             console.error('Failed to connect device:', error);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 error: error instanceof Error ? error.message : 'Connection failed'
             } as ConnectResponse);
@@ -87,10 +87,10 @@ export class QuickConnectHandler {
             await QuickConnectHandler.executeAdbCommand(['disconnect', connection.adbAddress]);
             QuickConnectHandler.activeConnections.delete(deviceId);
             
-            res.json({ success: true });
+            return res.json({ success: true });
         } catch (error) {
             console.error('Failed to disconnect device:', error);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 error: error instanceof Error ? error.message : 'Disconnection failed'
             });
@@ -100,13 +100,13 @@ export class QuickConnectHandler {
     /**
      * Get list of active connections
      */
-    public static getActiveConnections: RequestHandler = (req, res) => {
+    public static getActiveConnections: RequestHandler = (_req, res) => {
         const connections = Array.from(QuickConnectHandler.activeConnections.entries()).map(([id, info]) => ({
             id,
             ...info
         }));
         
-        res.json(connections);
+        return res.json(connections);
     };
 
     /**

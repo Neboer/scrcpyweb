@@ -93,7 +93,7 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         this.render();
     }
 
-    private removeSavedDevice(id: string): void {
+    public removeSavedDevice(id: string): void {
         this.savedDevices = this.savedDevices.filter(d => d.id !== id);
         this.saveSavedDevices();
         this.emit('removed', id);

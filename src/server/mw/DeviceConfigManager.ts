@@ -53,12 +53,12 @@ export class DeviceConfigManager {
         }
     }
 
-    public static getDevices: RequestHandler = async (req, res) => {
+    public static getDevices: RequestHandler = async (_req, res) => {
         try {
             const devices = await DeviceConfigManager.readConfig();
-            res.json(devices);
+            return res.json(devices);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to read device configuration' });
+            return res.status(500).json({ error: 'Failed to read device configuration' });
         }
     };
 
@@ -69,9 +69,9 @@ export class DeviceConfigManager {
                 return res.status(400).json({ error: 'Invalid device list format' });
             }
             await DeviceConfigManager.writeConfig(devices);
-            res.json({ success: true });
+            return res.json({ success: true });
         } catch (error) {
-            res.status(500).json({ error: 'Failed to save device configuration' });
+            return res.status(500).json({ error: 'Failed to save device configuration' });
         }
     };
 
@@ -89,9 +89,9 @@ export class DeviceConfigManager {
             devices.push(device);
             await DeviceConfigManager.writeConfig(devices);
             
-            res.json(device);
+            return res.json(device);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to add device' });
+            return res.status(500).json({ error: 'Failed to add device' });
         }
     };
 
@@ -106,9 +106,9 @@ export class DeviceConfigManager {
             }
             
             await DeviceConfigManager.writeConfig(filteredDevices);
-            res.json({ success: true });
+            return res.json({ success: true });
         } catch (error) {
-            res.status(500).json({ error: 'Failed to remove device' });
+            return res.status(500).json({ error: 'Failed to remove device' });
         }
     };
 
@@ -127,9 +127,9 @@ export class DeviceConfigManager {
             devices[deviceIndex] = { ...devices[deviceIndex], ...update };
             await DeviceConfigManager.writeConfig(devices);
             
-            res.json(devices[deviceIndex]);
+            return res.json(devices[deviceIndex]);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to update device' });
+            return res.status(500).json({ error: 'Failed to update device' });
         }
     };
 }
