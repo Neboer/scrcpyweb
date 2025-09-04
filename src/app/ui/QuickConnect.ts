@@ -1,26 +1,14 @@
 import '../../style/modern-ui.css';
 import { html } from './HtmlTag';
 import { TypedEmitter } from '../../common/TypedEmitter';
-import { ConfirmDialog } from './ConfirmDialog';
-
-export interface SavedDevice {
-    id: string;
-    name: string;
-    host: string;
-    port: number;
-    lastConnected?: Date;
-}
 
 interface QuickConnectEvents {
     connect: { name: string; host: string; port: number };
-    saved: SavedDevice;
-    removed: string;
 }
 
 export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     private static instance?: QuickConnect;
     private container: HTMLElement;
-    private savedDevices: SavedDevice[] = [];
     private isOpen = false;
 
     public static getInstance(): QuickConnect {
@@ -33,100 +21,16 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     private constructor() {
         super();
         this.container = document.createElement('div');
-        this.loadSavedDevices();
         this.render();
     }
 
-    private async loadSavedDevices(): Promise<void> {
-        try {
-            // 从后端加载设备列表
-            const response = await fetch('/api/devices');
-            if (response.ok) {
-                const devices = await response.json();
-                this.savedDevices = devices || [];
-            } else {
-                this.savedDevices = [];
-            }
-        } catch (error) {
-            console.error('Failed to load devices:', error);
-            this.savedDevices = [];
-        }
-        this.render();
-    }
-
-
-    public async removeSavedDevice(id: string): Promise<void> {
-        const device = this.savedDevices.find(d => d.id === id);
-        if (!device) return;
-        
-        ConfirmDialog.confirm({
-            title: '删除设备',
-            message: `确定要删除设备「${device.name}」吗？`,
-            confirmText: '删除',
-            cancelText: '取消',
-            confirmClass: 'btn-primary',
-            onConfirm: async () => {
-                try {
-                    // 调用后端API删除设备
-                    const response = await fetch(`/api/devices/${id}`, {
-                        method: 'DELETE'
-                    });
-                    
-                    if (response.ok) {
-                        // 从内存中移除设备
-                        this.savedDevices = this.savedDevices.filter(device => device.id !== id);
-                        
-                        // 重新渲染界面
-                        this.render();
-                        
-                        this.emit('removed', id);
-                        
-                        console.log(`Device ${device.name} deleted successfully`);
-                    } else {
-                        const error = await response.json();
-                        alert(`删除设备失败: ${error.error || '未知错误'}`);
-                    }
-                } catch (error) {
-                    console.error('Failed to delete device:', error);
-                    alert('删除设备失败，请重试');
-                }
-            }
-        });
-    }
 
     private async connectToDevice(device: { name: string; host: string; port: number }): Promise<void> {
-        try {
-            // Call the API to connect the device
-            const response = await fetch('/api/quick-connect', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(device)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                // Reload devices to get the updated list
-                await this.loadSavedDevices();
-                
-                this.emit('connect', device);
-                
-                // Show success message
-                this.showSuccessMessage(`成功连接到设备: ${device.name}`);
-                
-                // Close the panel after a short delay
-                setTimeout(() => {
-                    this.close();
-                }, 1500);
-            } else {
-                alert(`连接失败: ${result.error || '未知错误'}`);
-            }
-        } catch (error) {
-            console.error('Failed to connect to device:', error);
-            alert('连接设备失败，请检查连接信息。');
-        }
+        // Emit the connect event for listeners
+        this.emit('connect', device);
+        
+        // Don't show success message here - wait for backend confirmation
+        // Don't close the panel yet - wait for backend response
     }
 
     private render(): void {
@@ -147,17 +51,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                 </div>
                 
                 <form class="quick-connect-form" onsubmit="return false;">
-                    <div class="form-group">
-                        <label class="form-label" for="device-name">设备名称</label>
-                        <input 
-                            type="text" 
-                            id="device-name" 
-                            class="form-input" 
-                            placeholder="我的 Android 设备"
-                            required
-                        />
-                    </div>
-                    
                     <div class="form-group">
                         <label class="form-label" for="device-host">主机/IP地址</label>
                         <input 
@@ -211,30 +104,30 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     }
 
     public handleConnect(): void {
-        const nameInput = this.container.querySelector('#device-name') as HTMLInputElement;
         const hostInput = this.container.querySelector('#device-host') as HTMLInputElement;
         const portInput = this.container.querySelector('#device-port') as HTMLInputElement;
 
-        if (!nameInput.value || !hostInput.value || !portInput.value) {
+        if (!hostInput.value || !portInput.value) {
             return;
         }
 
+        // Auto-generate device name based on host and timestamp
+        const timestamp = new Date().toLocaleString('zh-CN', { 
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        const autoGeneratedName = `设备 ${hostInput.value}:${portInput.value} (${timestamp})`;
+
         this.connectToDevice({
-            name: nameInput.value,
+            name: autoGeneratedName,
             host: hostInput.value,
             port: parseInt(portInput.value, 10)
         });
     }
     
-    public handleSavedDeviceConnect(button: HTMLButtonElement): void {
-        const name = button.getAttribute('data-device-name') || '';
-        const host = button.getAttribute('data-device-host') || '';
-        const port = parseInt(button.getAttribute('data-device-port') || '0', 10);
-        
-        if (name && host && port) {
-            this.connectToDevice({ name, host, port });
-        }
-    }
 
 
 
@@ -250,6 +143,25 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     public unmount(): void {
         if (this.container.parentElement) {
             this.container.parentElement.removeChild(this.container);
+        }
+    }
+
+    public handleConnectionResult(success: boolean, message: string): void {
+        if (success) {
+            this.showSuccessMessage(message);
+            // Clear input fields
+            const hostInput = this.container.querySelector('#device-host') as HTMLInputElement;
+            const portInput = this.container.querySelector('#device-port') as HTMLInputElement;
+            if (hostInput) hostInput.value = '';
+            if (portInput) portInput.value = '5555';
+            
+            // Close the panel after a short delay
+            setTimeout(() => {
+                this.close();
+            }, 1500);
+        } else {
+            // Show error message
+            alert(`连接失败: ${message}`);
         }
     }
 

@@ -158,6 +158,12 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
             return;
         }
 
+        // Handle ADD_DEVICE_RESULT
+        if (message.type === 'ADD_DEVICE_RESULT') {
+            // This is handled in index.ts via event listeners
+            return;
+        }
+
         // Handle DELETE_DEVICE_RESULT
         if (message.type === 'DELETE_DEVICE_RESULT') {
             const result = message.data as { success: boolean; udid: string; message: string };

@@ -134,8 +134,69 @@ window.onload = async function (): Promise<void> {
     // Handle quick connect events
     quickConnect.on('connect', async (device) => {
         console.log('Connecting to device:', device);
-        // TODO: Implement actual device connection logic
-        // This will need to interface with the existing device connection system
+        
+        // Use the DeviceTracker class to find android trackers
+        const { DeviceTracker } = await import('./googDevice/client/DeviceTracker');
+        
+        // Try to find an existing android device tracker instance
+        let androidTracker: any = null;
+        
+        // Access the static map of instances
+        const instances = (DeviceTracker as any).instancesByUrl;
+        if (instances && instances.size > 0) {
+            // Get the first android device tracker
+            androidTracker = instances.values().next().value;
+        }
+        
+        if (androidTracker && androidTracker.ws && androidTracker.ws.readyState === WebSocket.OPEN) {
+            // Generate a unique message ID
+            const messageId = Date.now();
+            
+            // Send ADD_DEVICE message to backend
+            const message = {
+                id: messageId,
+                type: 'ADD_DEVICE',
+                data: {
+                    host: device.host,
+                    port: device.port
+                }
+            };
+            
+            // Store a callback for this message ID
+            const handleResponse = (event: MessageEvent) => {
+                try {
+                    const response = JSON.parse(event.data);
+                    if (response.type === 'ADD_DEVICE_RESULT' && response.id === messageId) {
+                        // Remove the listener
+                        androidTracker.ws.removeEventListener('message', handleResponse);
+                        
+                        // Handle the response
+                        if (response.data.success) {
+                            quickConnect.handleConnectionResult(true, 
+                                `成功连接到设备: ${response.data.host}:${response.data.port}`);
+                        } else {
+                            quickConnect.handleConnectionResult(false, response.data.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to parse response:', error);
+                }
+            };
+            
+            // Add response listener
+            androidTracker.ws.addEventListener('message', handleResponse);
+            
+            // Send the message
+            androidTracker.ws.send(JSON.stringify(message));
+            
+            // Set a timeout to remove the listener if no response
+            setTimeout(() => {
+                androidTracker.ws.removeEventListener('message', handleResponse);
+                quickConnect.handleConnectionResult(false, '连接超时，请重试');
+            }, 30000); // 30 second timeout
+        } else {
+            quickConnect.handleConnectionResult(false, '设备跟踪器未连接，请稍后再试');
+        }
     });
     
     HostTracker.start();
