@@ -4,6 +4,7 @@ import { StreamClientScrcpy } from './googDevice/client/StreamClientScrcpy';
 import { HostTracker } from './client/HostTracker';
 import { Tool } from './client/Tool';
 import { QuickConnect } from './ui/QuickConnect';
+import './ui/ConfirmDialog';
 
 window.onload = async function (): Promise<void> {
     const hash = location.hash.replace(/^#!/, '');

@@ -92,6 +92,13 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
         
         // Add device configuration API endpoints
         const { DeviceConfigManager } = await import('../mw/DeviceConfigManager');
+        const { QuickConnectHandler } = await import('../mw/QuickConnectHandler');
+        
+        // New endpoints for working directory devices.json
+        this.mainApp.get('/api/devices', QuickConnectHandler.getDevices);
+        this.mainApp.delete('/api/devices/:id', QuickConnectHandler.removeDevice);
+        
+        // Keep old endpoints for compatibility
         this.mainApp.get('/ws-scrcpy/devices.json', DeviceConfigManager.getDevices);
         this.mainApp.post('/ws-scrcpy/devices.json', DeviceConfigManager.saveDevices);
         this.mainApp.post('/ws-scrcpy/devices', DeviceConfigManager.addDevice);
@@ -99,7 +106,6 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
         this.mainApp.put('/ws-scrcpy/devices/:id', DeviceConfigManager.updateDevice);
         
         // Add quick connect API endpoints
-        const { QuickConnectHandler } = await import('../mw/QuickConnectHandler');
         this.mainApp.post('/api/quick-connect', QuickConnectHandler.connectDevice);
         this.mainApp.delete('/api/quick-connect/:deviceId', QuickConnectHandler.disconnectDevice);
         this.mainApp.get('/api/quick-connect', QuickConnectHandler.getActiveConnections);

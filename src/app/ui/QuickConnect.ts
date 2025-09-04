@@ -1,6 +1,7 @@
 import '../../style/modern-ui.css';
 import { html } from './HtmlTag';
 import { TypedEmitter } from '../../common/TypedEmitter';
+import { ConfirmDialog } from './ConfirmDialog';
 
 export interface SavedDevice {
     id: string;
@@ -22,7 +23,7 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     private savedDevices: SavedDevice[] = [];
     private isOpen = false;
     private storageKey = 'ws-scrcpy-saved-devices';
-    private configPath = '/ws-scrcpy/devices.json';
+    private configPath = './devices.json';
 
     public static getInstance(): QuickConnect {
         if (!this.instance) {
@@ -40,41 +41,21 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
 
     private async loadSavedDevices(): Promise<void> {
         try {
-            // First try to load from server storage
-            const response = await fetch(this.configPath);
+            // Load from server's devices.json in working directory
+            const response = await fetch('/api/devices');
             if (response.ok) {
-                this.savedDevices = await response.json();
+                const devices = await response.json();
+                this.savedDevices = devices || [];
             }
         } catch (error) {
-            // Fallback to localStorage
-            const saved = localStorage.getItem(this.storageKey);
-            if (saved) {
-                try {
-                    this.savedDevices = JSON.parse(saved);
-                } catch (e) {
-                    console.error('Failed to parse saved devices:', e);
-                }
-            }
+            console.error('Failed to load devices:', error);
+            this.savedDevices = [];
         }
         this.render();
     }
 
     private async saveSavedDevices(): Promise<void> {
-        // Save to localStorage immediately
-        localStorage.setItem(this.storageKey, JSON.stringify(this.savedDevices));
-        
-        // Try to save to server
-        try {
-            await fetch(this.configPath, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.savedDevices)
-            });
-        } catch (error) {
-            console.error('Failed to save devices to server:', error);
-        }
+        // No longer needed - backend saves automatically on connection
     }
 
     private generateDeviceId(): string {
@@ -82,22 +63,39 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     }
 
     private addSavedDevice(device: Omit<SavedDevice, 'id'>): void {
-        const newDevice: SavedDevice = {
-            ...device,
-            id: this.generateDeviceId(),
-            lastConnected: new Date()
-        };
-        this.savedDevices.push(newDevice);
-        this.saveSavedDevices();
-        this.emit('saved', newDevice);
-        this.render();
+        // No longer needed - backend saves automatically on connection
+        // Just connect directly
+        this.connectToDevice(device);
     }
 
-    public removeSavedDevice(id: string): void {
-        this.savedDevices = this.savedDevices.filter(d => d.id !== id);
-        this.saveSavedDevices();
-        this.emit('removed', id);
-        this.render();
+    public async removeSavedDevice(id: string): Promise<void> {
+        const device = this.savedDevices.find(d => d.id === id);
+        if (!device) return;
+        
+        ConfirmDialog.confirm({
+            title: '删除设备',
+            message: `确定要删除设备「${device.name}」吗？`,
+            confirmText: '删除',
+            cancelText: '取消',
+            confirmClass: 'btn-primary',
+            onConfirm: async () => {
+                try {
+                    const response = await fetch(`/api/devices/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        this.emit('removed', id);
+                        // Reload devices
+                        await this.loadSavedDevices();
+                    } else {
+                        alert('删除设备失败');
+                    }
+                } catch (error) {
+                    console.error('Failed to remove device:', error);
+                    alert('删除设备失败');
+                }
+            }
+        });
     }
 
     private async connectToDevice(device: { name: string; host: string; port: number }): Promise<void> {
@@ -114,14 +112,8 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
             const result = await response.json();
             
             if (result.success) {
-                // Update last connected time if it's a saved device
-                const savedDevice = this.savedDevices.find(d => 
-                    d.host === device.host && d.port === device.port
-                );
-                if (savedDevice) {
-                    savedDevice.lastConnected = new Date();
-                    this.saveSavedDevices();
-                }
+                // Reload devices to get the updated list
+                await this.loadSavedDevices();
                 
                 this.emit('connect', device);
                 this.close();
@@ -131,11 +123,11 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                     window.location.reload();
                 }, 1000);
             } else {
-                alert(`Failed to connect: ${result.error || 'Unknown error'}`);
+                alert(`连接失败: ${result.error || '未知错误'}`);
             }
         } catch (error) {
             console.error('Failed to connect to device:', error);
-            alert('Failed to connect to device. Please check the connection details.');
+            alert('连接设备失败，请检查连接信息。');
         }
     }
 
@@ -147,7 +139,7 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                         </svg>
-                        Quick Connect
+                        快速连接
                     </h2>
                     <button class="btn btn-icon btn-secondary" onclick="QuickConnect.getInstance().close()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -158,29 +150,29 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                 
                 <form class="quick-connect-form" onsubmit="return false;">
                     <div class="form-group">
-                        <label class="form-label" for="device-name">Device Name</label>
+                        <label class="form-label" for="device-name">设备名称</label>
                         <input 
                             type="text" 
                             id="device-name" 
                             class="form-input" 
-                            placeholder="My Android Device"
+                            placeholder="我的 Android 设备"
                             required
                         />
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="device-host">Host/IP Address</label>
+                        <label class="form-label" for="device-host">主机/IP地址</label>
                         <input 
                             type="text" 
                             id="device-host" 
                             class="form-input" 
-                            placeholder="192.168.1.100 or localhost"
+                            placeholder="192.168.1.100 或 localhost"
                             required
                         />
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="device-port">Port</label>
+                        <label class="form-label" for="device-port">端口</label>
                         <input 
                             type="number" 
                             id="device-port" 
@@ -193,20 +185,15 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                         />
                     </div>
                     
-                    <div style="display: flex; gap: var(--spacing-sm);">
-                        <button type="submit" class="btn btn-primary" style="flex: 1" onclick="QuickConnect.getInstance().handleConnect()">
-                            Connect
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="QuickConnect.getInstance().handleSave()">
-                            Save
-                        </button>
-                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%" onclick="QuickConnect.getInstance().handleConnect()">
+                        连接
+                    </button>
                 </form>
                 
                 ${this.savedDevices.length > 0 ? html`
                     <div class="saved-devices">
                         <div class="saved-devices-header">
-                            <h3 class="saved-devices-title">Saved Devices</h3>
+                            <h3 class="saved-devices-title">已保存的设备</h3>
                         </div>
                         ${this.savedDevices.map(device => html`
                             <div class="saved-device-item">
@@ -217,7 +204,7 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                                 <div class="saved-device-actions">
                                     <button 
                                         class="btn btn-icon btn-primary" 
-                                        title="Connect"
+                                        title="连接"
                                         data-device-name="${device.name}"
                                         data-device-host="${device.host}"
                                         data-device-port="${device.port}"
@@ -229,7 +216,7 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                                     </button>
                                     <button 
                                         class="btn btn-icon btn-secondary" 
-                                        title="Remove"
+                                        title="删除"
                                         onclick="QuickConnect.getInstance().removeSavedDevice('${device.id}')"
                                     >
                                         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -289,26 +276,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         }
     }
 
-    public handleSave(): void {
-        const nameInput = this.container.querySelector('#device-name') as HTMLInputElement;
-        const hostInput = this.container.querySelector('#device-host') as HTMLInputElement;
-        const portInput = this.container.querySelector('#device-port') as HTMLInputElement;
-
-        if (!nameInput.value || !hostInput.value || !portInput.value) {
-            return;
-        }
-
-        this.addSavedDevice({
-            name: nameInput.value,
-            host: hostInput.value,
-            port: parseInt(portInput.value, 10)
-        });
-
-        // Clear form
-        nameInput.value = '';
-        hostInput.value = '';
-        portInput.value = '5555';
-    }
 
     public getContainer(): HTMLElement {
         return this.container;
