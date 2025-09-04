@@ -192,8 +192,8 @@ window.onload = async function (): Promise<void> {
             // Set a timeout to remove the listener if no response
             setTimeout(() => {
                 androidTracker.ws.removeEventListener('message', handleResponse);
-                quickConnect.handleConnectionResult(false, '连接超时，请重试');
-            }, 30000); // 30 second timeout
+                quickConnect.handleConnectionResult(false, '连接超时，请检查设备IP和端口是否正确');
+            }, 10000); // 10 second timeout
         } else {
             quickConnect.handleConnectionResult(false, '设备跟踪器未连接，请稍后再试');
         }

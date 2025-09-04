@@ -312,7 +312,9 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         const servicesId = `device_services_${fullName}`;
         const row = html`<div class="device ${isActive ? 'active' : 'not-active'}">
             <div class="device-header">
-                <div class="device-name">${device['ro.product.manufacturer']} ${device['ro.product.model']}</div>
+                <div class="device-name">${device['ro.product.manufacturer'] && device['ro.product.model'] 
+                    ? `${device['ro.product.manufacturer']} ${device['ro.product.model']}` 
+                    : `设备 ${device.udid}`}</div>
                 <div class="device-serial">${device.udid}</div>
                 <div class="device-version">
                     <div class="release-version">${device['ro.build.version.release']}</div>
@@ -323,7 +325,9 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                     <button class="btn btn-secondary btn-icon device-delete-btn" 
                             title="删除设备" 
                             data-udid="${device.udid}"
-                            data-name="${device['ro.product.manufacturer']} ${device['ro.product.model']}">
+                            data-name="${device['ro.product.manufacturer'] && device['ro.product.model'] 
+                                ? `${device['ro.product.manufacturer']} ${device['ro.product.model']}` 
+                                : `设备 ${device.udid}`}">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                         </svg>

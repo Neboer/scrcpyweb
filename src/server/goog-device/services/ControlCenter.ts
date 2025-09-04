@@ -10,7 +10,6 @@ import { BaseControlCenter } from '../../services/BaseControlCenter';
 import { ControlCenterCommand } from '../../../common/ControlCenterCommand';
 import * as os from 'os';
 import * as crypto from 'crypto';
-import { DeviceState } from '../../../common/DeviceState';
 
 export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> implements Service {
     private static readonly defaultWaitAfterError = 1000;
@@ -65,7 +64,8 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
         if (changes.removed.length) {
             for (const item of changes.removed) {
                 const { id } = item;
-                this.handleConnected(id, DeviceState.DISCONNECTED);
+                // When device is removed from ADB, remove it completely
+                this.handleDisconnected(id);
             }
         }
         if (changes.changed.length) {
@@ -90,6 +90,18 @@ export class ControlCenter extends BaseControlCenter<GoogDeviceDescriptor> imple
             device = new Device(udid, state);
             device.on('update', this.onDeviceUpdate);
             this.deviceMap.set(udid, device);
+        }
+    }
+
+    private handleDisconnected(udid: string): void {
+        const device = this.deviceMap.get(udid);
+        if (device) {
+            // Clean up the device
+            device.off('update', this.onDeviceUpdate);
+            this.deviceMap.delete(udid);
+            this.descriptors.delete(udid);
+            // Emit device-removed event to update all clients
+            this.emit('device-removed', udid);
         }
     }
 

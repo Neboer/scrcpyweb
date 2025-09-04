@@ -106,10 +106,19 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     public handleConnect(): void {
         const hostInput = this.container.querySelector('#device-host') as HTMLInputElement;
         const portInput = this.container.querySelector('#device-port') as HTMLInputElement;
+        const connectButton = this.container.querySelector('button[type="submit"]') as HTMLButtonElement;
 
         if (!hostInput.value || !portInput.value) {
             return;
         }
+
+        // Disable form and show loading state
+        if (connectButton) {
+            connectButton.disabled = true;
+            connectButton.innerHTML = '<span class="spinner-small"></span> 正在连接...';
+        }
+        hostInput.disabled = true;
+        portInput.disabled = true;
 
         // Auto-generate device name based on host and timestamp
         const timestamp = new Date().toLocaleString('zh-CN', { 
@@ -147,11 +156,21 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     }
 
     public handleConnectionResult(success: boolean, message: string): void {
+        const hostInput = this.container.querySelector('#device-host') as HTMLInputElement;
+        const portInput = this.container.querySelector('#device-port') as HTMLInputElement;
+        const connectButton = this.container.querySelector('button[type="submit"]') as HTMLButtonElement;
+        
+        // Restore form state
+        if (hostInput) hostInput.disabled = false;
+        if (portInput) portInput.disabled = false;
+        if (connectButton) {
+            connectButton.disabled = false;
+            connectButton.innerHTML = '连接';
+        }
+        
         if (success) {
             this.showSuccessMessage(message);
             // Clear input fields
-            const hostInput = this.container.querySelector('#device-host') as HTMLInputElement;
-            const portInput = this.container.querySelector('#device-port') as HTMLInputElement;
             if (hostInput) hostInput.value = '';
             if (portInput) portInput.value = '5555';
             
@@ -160,7 +179,8 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                 this.close();
             }, 1500);
         } else {
-            // Show error message
+            // Show error message immediately with alert
+            this.showErrorMessage(`连接失败: ${message}`);
             alert(`连接失败: ${message}`);
         }
     }
@@ -185,6 +205,28 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         setTimeout(() => {
             successDiv.remove();
         }, 3000);
+    }
+
+    private showErrorMessage(message: string): void {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message fade-in';
+        errorDiv.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <span>${message}</span>
+        `;
+        
+        // Insert at the top of the panel
+        const panel = this.container.querySelector('.quick-connect-panel');
+        if (panel && panel.firstElementChild) {
+            panel.insertBefore(errorDiv, panel.firstElementChild.nextSibling);
+        }
+        
+        // Remove after animation
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
     }
 }
 

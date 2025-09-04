@@ -155,14 +155,13 @@ export class DeviceTracker extends Mw {
                             try {
                                 await adbClient.disconnect(udid);
                                 console.log(`[${DeviceTracker.TAG}] ADB disconnected from device ${udid}`);
+                                // The device will be automatically removed by ADB tracker's 'removed' event
                             } catch (error: any) {
                                 console.warn(`[${DeviceTracker.TAG}] ADB disconnect warning: ${error.message}`);
-                                // Continue even if disconnect fails, as device might already be disconnected
+                                // If disconnect fails, manually remove the device
+                                this.adt.removeDevice(udid);
+                                console.log(`[${DeviceTracker.TAG}] Device ${udid} manually removed from ControlCenter`);
                             }
-                            
-                            // Remove device from ControlCenter
-                            this.adt.removeDevice(udid);
-                            console.log(`[${DeviceTracker.TAG}] Device ${udid} removed from ControlCenter`);
                             
                             // Send success response
                             this.sendMessage({
