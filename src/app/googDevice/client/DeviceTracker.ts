@@ -369,7 +369,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                 confirmClass: 'btn-primary',
                 onConfirm: async () => {
                     // 从界面上移除设备（本地删除）
-                    const deviceElement = button.closest('.device');
+                    const deviceElement = button.closest('.device') as HTMLElement;
                     if (deviceElement) {
                         deviceElement.style.transition = 'all 0.3s ease';
                         deviceElement.style.opacity = '0';
