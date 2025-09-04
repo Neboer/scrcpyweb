@@ -216,10 +216,10 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                     </div>
                 ` : ''}
             </div>
-        `.content;
+        `;
 
         this.container.innerHTML = '';
-        this.container.appendChild(content.firstElementChild as HTMLElement);
+        this.container.appendChild(content.content.firstElementChild as HTMLElement);
     }
 
     public open(): void {
