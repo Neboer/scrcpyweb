@@ -112,4 +112,9 @@ export class ConfirmDialog {
 }
 
 // Make ConfirmDialog available globally
-(window as any).ConfirmDialog = ConfirmDialog;
+declare global {
+    interface Window {
+        ConfirmDialog: typeof ConfirmDialog;
+    }
+}
+window.ConfirmDialog = ConfirmDialog;

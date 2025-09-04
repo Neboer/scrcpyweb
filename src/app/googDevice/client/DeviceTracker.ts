@@ -417,4 +417,9 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
 }
 
 // Make DeviceTracker available globally for onclick handlers
-(window as any).DeviceTracker = DeviceTracker;
+declare global {
+    interface Window {
+        DeviceTracker: typeof DeviceTracker;
+    }
+}
+window.DeviceTracker = DeviceTracker;
