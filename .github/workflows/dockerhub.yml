@@ -1,36 +1,103 @@
-name: Docker 编译推送
+name: Docker 构建和推送
+
 on:
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: '目标平台'
+        required: false
+        type: choice
+        options:
+          - linux/amd64
+          - linux/amd64,linux/arm64
+        default: 'linux/amd64'
+      push_latest:
+        description: '是否推送 latest 标签'
+        required: false
+        type: boolean
+        default: true
   push:
-    branches: [ "master" ]  # 当推送到 main 分支时触发
+    branches: [ "master" ]
+    paths:
+      - 'Dockerfile'
+      - 'package*.json'
+      - 'src/**'
+      - 'vendor/**'
+      - '.github/workflows/dockerhub.yml'
   pull_request:
-    branches: [ "master" ]  # 当有针对 main 分支的拉取请求时触发
+    branches: [ "master" ]
+    paths:
+      - 'Dockerfile'
+      - 'package*.json'
+      - 'src/**'
+      - 'vendor/**'
+
+env:
+  DOCKER_IMAGE: superen7527/scrcpyweb
 
 jobs:
   build:
+    name: 构建 Docker 镜像
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          submodules: true
 
-      - name: 设置Build环境变量
-        run: |
-          echo "BUILD_IMAGE=superen7527/scrcpyweb" >> $GITHUB_ENV
-          echo "BUILD_PLATFORM=linux/amd64" >> $GITHUB_ENV
-          echo "BUILD_TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+      - name: 设置 Docker 元数据
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix={{branch}}-,format=short
+            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || inputs.push_latest }}
 
-      - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v2.5.0
+      - name: 设置 QEMU
+        uses: docker/setup-qemu-action@v3
 
-      - name: 登录
-        env:
-          SUPAI_USERNAME: ${{ vars.USERNAME }}
-          SUPAI_PASSWORD: ${{ vars.PASSWORD }}
-        run: echo "${SUPAI_PASSWORD}" | docker login --username ${SUPAI_USERNAME} --password-stdin
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
 
-      - name: Build and Push Docker Image
-        run: |
-          docker buildx build --platform $BUILD_PLATFORM --file Dockerfile \
-            --tag ${BUILD_IMAGE}:latest \
-            --tag ${BUILD_IMAGE}:${BUILD_TAG} \
-            . --push
+      - name: 登录 Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.USERNAME || secrets.DOCKERHUB_USERNAME }}
+          password: ${{ vars.PASSWORD || secrets.DOCKERHUB_PASSWORD }}
+
+      - name: 构建和推送镜像
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ inputs.platforms || 'linux/amd64' }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.metadata.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ github.sha }}
+
+      - name: 更新 Docker Hub 描述
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: peter-evans/dockerhub-description@v3
+        continue-on-error: true
+        with:
+          username: ${{ vars.USERNAME || secrets.DOCKERHUB_USERNAME }}
+          password: ${{ vars.PASSWORD || secrets.DOCKERHUB_PASSWORD }}
+          repository: ${{ env.DOCKER_IMAGE }}
+          readme-filepath: ./README.md

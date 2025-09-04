@@ -1,39 +1,77 @@
-name: Upstream Sync
+name: 同步上游仓库
 
 permissions:
   contents: write
 
 on:
   schedule:
-    - cron: "0 0 * * *" # every day
+    - cron: "0 2 * * 1" # 每周一凌晨2点执行
   workflow_dispatch:
 
 jobs:
   sync_latest_from_upstream:
-    name: Sync latest commits from upstream repo
+    name: 同步上游最新提交
     runs-on: ubuntu-latest
     if: ${{ github.event.repository.fork }}
 
     steps:
-      # Step 1: run a standard checkout action
-      - name: Checkout target repo
-        uses: actions/checkout@v3
-
-      # Step 2: run the sync action
-      - name: Sync upstream changes
-        id: sync
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+      - name: 检出目标仓库
+        uses: actions/checkout@v4
         with:
-          upstream_sync_repo: NetrisTV/ws-scrcpy
-          upstream_sync_branch: master
-          target_sync_branch: master
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }} # automatically generated, no need to set
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-          # Set test_mode true to run tests instead of the true action!!
-          test_mode: false
-
-      - name: Sync check
-        if: failure()
+      - name: 配置 Git
         run: |
-          echo "[Error] 由于上游仓库的 workflow 文件变更，导致 GitHub 自动暂停了本次自动更新，你需要手动 Sync Fork 一次，详细教程请查看：https://github.com/Yidadaa/ChatGPT-Next-Web/blob/main/README_CN.md#%E6%89%93%E5%BC%80%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0"
-          exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 添加并获取上游仓库
+        id: fetch_upstream
+        run: |
+          # 添加上游仓库
+          git remote add upstream https://github.com/NetrisTV/ws-scrcpy.git || true
+          
+          # 尝试获取上游仓库
+          if git fetch upstream; then
+            echo "upstream_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ 成功获取上游仓库" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "upstream_exists=false" >> $GITHUB_OUTPUT
+            echo "❌ 无法访问上游仓库" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+      - name: 合并上游更改
+        if: steps.fetch_upstream.outputs.upstream_exists == 'true'
+        id: merge
+        run: |
+          # 获取当前分支
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          
+          # 尝试合并上游 master 分支
+          if git merge upstream/master --no-edit -m "Merge upstream changes from NetrisTV/ws-scrcpy"; then
+            echo "merge_status=success" >> $GITHUB_OUTPUT
+            echo "✅ 成功合并上游更改" >> $GITHUB_STEP_SUMMARY
+            
+            # 显示合并的提交数
+            COMMITS=$(git rev-list --count HEAD@{1}..HEAD)
+            echo "📊 合并了 $COMMITS 个新提交" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "merge_status=conflict" >> $GITHUB_OUTPUT
+            echo "❌ 合并失败：存在冲突" >> $GITHUB_STEP_SUMMARY
+            
+            # 显示冲突文件
+            echo "### 冲突文件列表：" >> $GITHUB_STEP_SUMMARY
+            git diff --name-only --diff-filter=U >> $GITHUB_STEP_SUMMARY
+            
+            # 中止合并
+            git merge --abort
+            exit 1
+          fi
+
+      - name: 推送更改
+        if: steps.merge.outputs.merge_status == 'success'
+        run: |
+          git push origin master
+          echo "✅ 更改已推送到远程仓库" >> $GITHUB_STEP_SUMMARY
