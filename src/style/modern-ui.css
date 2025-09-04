@@ -1,8 +1,8 @@
 /* Modern UI Theme */
 :root {
     /* Primary Colors */
-    --primary-color: #3b82f6;
-    --primary-hover: #2563eb;
+    --primary-color: #f97316;
+    --primary-hover: #ea580c;
     --primary-light: #60a5fa;
     --primary-dark: #1e40af;
     
@@ -227,7 +227,7 @@ body::before {
 .form-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), inset 0 1px 3px rgba(59, 130, 246, 0.05);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1), inset 0 1px 3px rgba(249, 115, 22, 0.05);
     background: var(--background);
 }
 
@@ -261,7 +261,7 @@ body::before {
 .btn-primary {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
     color: var(--text-on-primary);
-    box-shadow: 0 4px 15px 0 rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 15px 0 rgba(249, 115, 22, 0.3);
 }
 
 .btn-primary::before {
@@ -281,7 +281,7 @@ body::before {
 
 .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+    box-shadow: 0 6px 20px 0 rgba(249, 115, 22, 0.4);
 }
 
 .btn-secondary {
@@ -504,8 +504,8 @@ body::before {
 /* Toggle Switch */
 .toggle-switch {
     position: fixed;
-    top: var(--spacing-md);
-    left: var(--spacing-md);
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
     z-index: 1000;
 }
 
@@ -521,7 +521,7 @@ body::before {
     font-size: var(--font-sm);
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 15px 0 rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 15px 0 rgba(249, 115, 22, 0.4);
     transition: var(--transition-base);
     position: relative;
     overflow: hidden;
@@ -547,7 +547,7 @@ body::before {
 
 .toggle-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px 0 rgba(139, 92, 246, 0.5);
+    box-shadow: 0 6px 20px 0 rgba(249, 115, 22, 0.5);
 }
 
 /* Animations */
@@ -571,7 +571,7 @@ body::before {
     display: inline-block;
     width: 20px;
     height: 20px;
-    border: 3px solid rgba(139, 92, 246, 0.3);
+    border: 3px solid rgba(249, 115, 22, 0.3);
     border-radius: 50%;
     border-top-color: var(--primary-color);
     animation: spin 1s ease-in-out infinite;

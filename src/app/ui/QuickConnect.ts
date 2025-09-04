@@ -182,7 +182,7 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                         <div class="saved-devices-header">
                             <h3 class="saved-devices-title">已保存的设备</h3>
                         </div>
-                        ${this.savedDevices.map(device => html`
+                        ${this.savedDevices.map(device => `
                             <div class="saved-device-item">
                                 <div class="saved-device-info">
                                     <div class="saved-device-name">${device.name}</div>

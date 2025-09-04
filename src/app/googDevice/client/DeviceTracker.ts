@@ -192,7 +192,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                             title="删除设备" 
                             data-udid="${device.udid}"
                             data-name="${device['ro.product.manufacturer']} ${device['ro.product.model']}"
-                            onclick="DeviceTracker.handleDeleteDevice(this)">
+                            onclick="(window as any).DeviceTracker.handleDeleteDevice(this)">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                         </svg>
@@ -368,24 +368,15 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                 cancelText: '取消',
                 confirmClass: 'btn-primary',
                 onConfirm: async () => {
-                    try {
-                        // 这里调用删除设备的 API
-                        const response = await fetch(`/api/devices/${udid}`, {
-                            method: 'DELETE'
-                        });
-                        
-                        if (response.ok) {
-                            // 从界面上移除设备
-                            const deviceElement = button.closest('.device');
-                            if (deviceElement) {
-                                deviceElement.remove();
-                            }
-                        } else {
-                            alert('删除设备失败');
-                        }
-                    } catch (error) {
-                        console.error('Failed to delete device:', error);
-                        alert('删除设备失败');
+                    // 从界面上移除设备（本地删除）
+                    const deviceElement = button.closest('.device');
+                    if (deviceElement) {
+                        deviceElement.style.transition = 'all 0.3s ease';
+                        deviceElement.style.opacity = '0';
+                        deviceElement.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            deviceElement.remove();
+                        }, 300);
                     }
                 }
             });

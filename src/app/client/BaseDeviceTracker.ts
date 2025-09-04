@@ -112,9 +112,10 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
     protected constructor(params: ParamsDeviceTracker, protected readonly directUrl: string) {
         super(params);
         this.elementId = `tracker_instance${++BaseDeviceTracker.instanceId}`;
-        this.trackerName = `Unavailable. Host: ${params.hostname}, type: ${params.type}`;
+        this.trackerName = `正在连接... Host: ${params.hostname}, type: ${params.type}`;
         this.setBodyClass('list');
         this.setTitle();
+        console.log(TAG, `Creating tracker for ${params.type} at ${params.hostname}:${params.port}`);
     }
 
     public static parseParameters(params: URLSearchParams): ParamsDeviceTracker {
@@ -132,13 +133,16 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
 
     protected buildDeviceTable(): void {
         const data = this.descriptors;
+        console.log(TAG, `Building device table with ${data.length} devices`);
         const devices = this.getOrCreateTableHolder();
         const tbody = this.getOrBuildTableBody(devices);
 
         const block = this.getOrCreateTrackerBlock(tbody, this.trackerName);
-        data.forEach((item) => {
+        data.forEach((item, index) => {
+            console.log(TAG, `Building row for device ${index + 1}:`, item.udid);
             this.buildDeviceRow(block, item);
         });
+        console.log(TAG, `Device table build completed`);
     }
 
     private setNameValue(parent: Element | null, name: string): void {
@@ -178,9 +182,13 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
         if (this.destroyed) {
             return;
         }
-        console.log(TAG, `Connection closed: ${event.reason}`);
+        console.log(TAG, `Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`);
+        console.log(TAG, 'Attempting to reconnect in 2 seconds...');
         setTimeout(() => {
-            this.openNewConnection();
+            if (!this.destroyed) {
+                console.log(TAG, 'Reconnecting...');
+                this.openNewConnection();
+            }
         }, 2000);
     }
 
