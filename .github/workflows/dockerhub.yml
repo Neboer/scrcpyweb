@@ -49,17 +49,18 @@ jobs:
         with:
           submodules: true
 
+      - name: 获取北京时间
+        id: beijing-time
+        run: |
+          echo "BEIJING_TIME=$(TZ=Asia/Shanghai date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+
       - name: 设置 Docker 元数据
         id: metadata
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=sha,prefix={{branch}}-,format=short
-            type=raw,value={{date 'YYYYMMDD-HHmmss'}}
+            type=raw,value=${{ steps.beijing-time.outputs.BEIJING_TIME }}
             type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || inputs.push_latest }}
 
       - name: 设置 QEMU
@@ -74,8 +75,8 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.USERNAME || secrets.DOCKERHUB_USERNAME }}
-          password: ${{ vars.PASSWORD || secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ vars.USERNAME }}
+          password: ${{ vars.PASSWORD }}
 
       - name: 构建和推送镜像
         uses: docker/build-push-action@v5
@@ -97,7 +98,7 @@ jobs:
         uses: peter-evans/dockerhub-description@v3
         continue-on-error: true
         with:
-          username: ${{ vars.USERNAME || secrets.DOCKERHUB_USERNAME }}
-          password: ${{ vars.PASSWORD || secrets.DOCKERHUB_PASSWORD }}
+          username: ${{ vars.USERNAME }}
+          password: ${{ vars.PASSWORD }}
           repository: ${{ env.DOCKER_IMAGE }}
           readme-filepath: ./README.md
