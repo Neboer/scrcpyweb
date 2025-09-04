@@ -646,6 +646,20 @@ body::before {
 
 .confirm-dialog-header {
     margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.confirm-dialog-header .dialog-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    background-image: url('/favicon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .confirm-dialog-title {

@@ -422,6 +422,11 @@ export class ConfigureScrcpy extends BaseClient<ParamsStreamScrcpy, ConfigureScr
             dialogHeader.appendChild(el);
         });
 
+        // Add dialog icon
+        const dialogIcon = document.createElement('div');
+        dialogIcon.classList.add('dialog-icon');
+        dialogHeader.appendChild(dialogIcon);
+
         const deviceName = document.createElement('span');
         deviceName.classList.add('dialog-title', 'main-title');
         deviceName.innerText = this.deviceName;

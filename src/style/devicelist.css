@@ -188,6 +188,14 @@ body.list #device_list_menu {
     min-width: fit-content;
     white-space: nowrap;
     flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+#devices .services button.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
 }
 
 #devices .services button.btn-primary {

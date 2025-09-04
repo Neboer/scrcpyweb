@@ -203,6 +203,7 @@
     position: relative;
     padding: 0 48px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 24px;
 }
 
 .dialog-header::before {
@@ -231,6 +232,29 @@
         transparent 0%, 
         rgba(255, 255, 255, 0.3) 50%, 
         transparent 100%);
+}
+
+.dialog-header .dialog-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    background-image: url('/favicon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) brightness(1.1);
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
 }
 
 .dialog-header span.dialog-title {

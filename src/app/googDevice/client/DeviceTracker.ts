@@ -368,15 +368,32 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                 cancelText: '取消',
                 confirmClass: 'btn-primary',
                 onConfirm: async () => {
-                    // 从界面上移除设备（本地删除）
-                    const deviceElement = button.closest('.device');
-                    if (deviceElement && deviceElement instanceof HTMLElement) {
-                        deviceElement.style.transition = 'all 0.3s ease';
-                        deviceElement.style.opacity = '0';
-                        deviceElement.style.transform = 'translateX(-100%)';
-                        setTimeout(() => {
-                            deviceElement.remove();
-                        }, 300);
+                    try {
+                        // Call backend API to delete device
+                        const response = await fetch(`/api/devices/${udid}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Failed to delete device');
+                        }
+                        
+                        // If backend deletion successful, remove from UI
+                        const deviceElement = button.closest('.device');
+                        if (deviceElement && deviceElement instanceof HTMLElement) {
+                            deviceElement.style.transition = 'all 0.3s ease';
+                            deviceElement.style.opacity = '0';
+                            deviceElement.style.transform = 'translateX(-100%)';
+                            setTimeout(() => {
+                                deviceElement.remove();
+                            }, 300);
+                        }
+                    } catch (error) {
+                        console.error('Failed to delete device:', error);
+                        alert('删除设备失败，请重试');
                     }
                 }
             });

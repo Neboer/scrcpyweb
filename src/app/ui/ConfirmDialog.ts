@@ -31,6 +31,7 @@ export class ConfirmDialog {
             <div class="confirm-dialog-overlay">
                 <div class="confirm-dialog glass-effect">
                     <div class="confirm-dialog-header">
+                        <div class="dialog-icon"></div>
                         <h3 class="confirm-dialog-title">${this.options.title}</h3>
                     </div>
                     <div class="confirm-dialog-body">
@@ -49,25 +50,25 @@ export class ConfirmDialog {
         `.content;
 
         this.container.innerHTML = '';
-        this.container.appendChild(content.firstElementChild as HTMLElement);
+        this.container.appendChild(content.firstElementChild);
         
         // Store instance reference
-        (this.container.firstElementChild as any)._instance = this;
+        this.container.firstElementChild._instance = this;
     }
 
     public static handleConfirm(button: HTMLElement): void {
-        const dialog = button.closest('.confirm-dialog-overlay') as any;
+        const dialog = button.closest('.confirm-dialog-overlay');
         if (dialog && dialog._instance) {
-            const instance = dialog._instance as ConfirmDialog;
+            const instance = dialog._instance;
             instance.options.onConfirm();
             instance.close();
         }
     }
 
     public static handleCancel(button: HTMLElement): void {
-        const dialog = button.closest('.confirm-dialog-overlay') as any;
+        const dialog = button.closest('.confirm-dialog-overlay');
         if (dialog && dialog._instance) {
-            const instance = dialog._instance as ConfirmDialog;
+            const instance = dialog._instance;
             if (instance.options.onCancel) {
                 instance.options.onCancel();
             }
