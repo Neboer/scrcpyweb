@@ -39,11 +39,13 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
 
     private async loadSavedDevices(): Promise<void> {
         try {
-            // Load from server's devices.json in working directory
+            // 从后端加载设备列表
             const response = await fetch('/api/devices');
             if (response.ok) {
                 const devices = await response.json();
                 this.savedDevices = devices || [];
+            } else {
+                this.savedDevices = [];
             }
         } catch (error) {
             console.error('Failed to load devices:', error);
@@ -64,16 +66,30 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
             cancelText: '取消',
             confirmClass: 'btn-primary',
             onConfirm: async () => {
-                // 从内存中移除设备
-                this.savedDevices = this.savedDevices.filter(device => device.id !== id);
-                
-                // 同时从devices.json文件中移除
-                await this.updateDevicesFile();
-                
-                // 重新渲染界面
-                this.render();
-                
-                this.emit('removed', id);
+                try {
+                    // 调用后端API删除设备
+                    const response = await fetch(`/api/devices/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        // 从内存中移除设备
+                        this.savedDevices = this.savedDevices.filter(device => device.id !== id);
+                        
+                        // 重新渲染界面
+                        this.render();
+                        
+                        this.emit('removed', id);
+                        
+                        console.log(`Device ${device.name} deleted successfully`);
+                    } else {
+                        const error = await response.json();
+                        alert(`删除设备失败: ${error.error || '未知错误'}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to delete device:', error);
+                    alert('删除设备失败，请重试');
+                }
             }
         });
     }
@@ -221,22 +237,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     }
 
 
-    private async updateDevicesFile(): Promise<void> {
-        try {
-            const response = await fetch('/api/devices', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(this.savedDevices)
-            });
-            if (!response.ok) {
-                console.error('Failed to update devices file');
-            }
-        } catch (error) {
-            console.error('Error updating devices file:', error);
-        }
-    }
 
 
     public getContainer(): HTMLElement {

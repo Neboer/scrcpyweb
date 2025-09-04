@@ -161,6 +161,100 @@ export class QuickConnectHandler {
     };
 
     /**
+     * Delete a device from devices.json
+     */
+    public static removeDevice: RequestHandler = async (req, res) => {
+        const { id } = req.params;
+        
+        try {
+            let devices: SavedDevice[] = [];
+            
+            // Read existing devices
+            if (await exists(QuickConnectHandler.DEVICES_FILE)) {
+                const data = await readFile(QuickConnectHandler.DEVICES_FILE, 'utf-8');
+                try {
+                    devices = JSON.parse(data);
+                } catch (e) {
+                    devices = [];
+                }
+            }
+            
+            // Filter out the device to delete
+            const originalLength = devices.length;
+            devices = devices.filter(d => d.id !== id);
+            
+            if (devices.length === originalLength) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Device not found'
+                });
+            }
+            
+            // Write back to file
+            await writeFile(QuickConnectHandler.DEVICES_FILE, JSON.stringify(devices, null, 2));
+            console.log(`Deleted device ${id} from devices.json`);
+            
+            return res.json({ success: true });
+        } catch (error) {
+            console.error('Failed to delete device:', error);
+            return res.status(500).json({
+                success: false,
+                error: error instanceof Error ? error.message : 'Delete failed'
+            });
+        }
+    };
+
+    /**
+     * Get list of saved devices from devices.json
+     */
+    public static getDevices: RequestHandler = async (_req, res) => {
+        try {
+            let devices: SavedDevice[] = [];
+            
+            if (await exists(QuickConnectHandler.DEVICES_FILE)) {
+                const data = await readFile(QuickConnectHandler.DEVICES_FILE, 'utf-8');
+                try {
+                    devices = JSON.parse(data);
+                } catch (e) {
+                    devices = [];
+                }
+            }
+            
+            return res.json(devices);
+        } catch (error) {
+            console.error('Failed to get devices:', error);
+            return res.status(500).json([]);
+        }
+    };
+
+    /**
+     * Update devices in devices.json
+     */
+    public static updateDevices: RequestHandler = async (req, res) => {
+        try {
+            const devices = req.body;
+            
+            if (!Array.isArray(devices)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Invalid devices data'
+                });
+            }
+            
+            await writeFile(QuickConnectHandler.DEVICES_FILE, JSON.stringify(devices, null, 2));
+            console.log('Updated devices.json');
+            
+            return res.json({ success: true });
+        } catch (error) {
+            console.error('Failed to update devices:', error);
+            return res.status(500).json({
+                success: false,
+                error: error instanceof Error ? error.message : 'Update failed'
+            });
+        }
+    };
+
+    /**
      * Get list of active connections
      */
     public static getActiveConnections: RequestHandler = (_req, res) => {
@@ -260,51 +354,4 @@ export class QuickConnectHandler {
         }
     }
 
-    /**
-     * Get devices from working directory devices.json
-     */
-    public static getDevices: RequestHandler = async (_req, res) => {
-        try {
-            if (!await exists(QuickConnectHandler.DEVICES_FILE)) {
-                return res.json([]);
-            }
-            
-            const data = await readFile(QuickConnectHandler.DEVICES_FILE, 'utf-8');
-            const devices = JSON.parse(data);
-            return res.json(devices);
-        } catch (error) {
-            console.error('Failed to read devices:', error);
-            return res.status(500).json({ error: 'Failed to read devices' });
-        }
-    };
-
-    /**
-     * Remove device from working directory devices.json
-     */
-    public static removeDevice: RequestHandler = async (req, res) => {
-        try {
-            const { id } = req.params;
-            
-            if (!await exists(QuickConnectHandler.DEVICES_FILE)) {
-                return res.status(404).json({ error: 'No devices file found' });
-            }
-            
-            const data = await readFile(QuickConnectHandler.DEVICES_FILE, 'utf-8');
-            const devices: SavedDevice[] = JSON.parse(data);
-            
-            const filteredDevices = devices.filter(d => d.id !== id);
-            
-            if (devices.length === filteredDevices.length) {
-                return res.status(404).json({ error: 'Device not found' });
-            }
-            
-            await writeFile(QuickConnectHandler.DEVICES_FILE, JSON.stringify(filteredDevices, null, 2));
-            console.log(`Removed device ${id} from devices.json`);
-            
-            return res.json({ success: true });
-        } catch (error) {
-            console.error('Failed to remove device:', error);
-            return res.status(500).json({ error: 'Failed to remove device' });
-        }
-    };
 }
