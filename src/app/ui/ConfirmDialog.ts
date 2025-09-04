@@ -12,6 +12,7 @@ export interface ConfirmDialogOptions {
 }
 
 export class ConfirmDialog {
+    private static instances = new WeakMap<Element, ConfirmDialog>();
     private container: HTMLElement;
     private options: ConfirmDialogOptions;
 
@@ -50,29 +51,34 @@ export class ConfirmDialog {
         `.content;
 
         this.container.innerHTML = '';
-        this.container.appendChild(content.firstElementChild);
+        const dialogElement = content.firstElementChild;
+        this.container.appendChild(dialogElement!);
         
         // Store instance reference
-        this.container.firstElementChild._instance = this;
+        ConfirmDialog.instances.set(dialogElement!, this);
     }
 
     public static handleConfirm(button: HTMLElement): void {
         const dialog = button.closest('.confirm-dialog-overlay');
-        if (dialog && dialog._instance) {
-            const instance = dialog._instance;
-            instance.options.onConfirm();
-            instance.close();
+        if (dialog) {
+            const instance = ConfirmDialog.instances.get(dialog);
+            if (instance) {
+                instance.options.onConfirm();
+                instance.close();
+            }
         }
     }
 
     public static handleCancel(button: HTMLElement): void {
         const dialog = button.closest('.confirm-dialog-overlay');
-        if (dialog && dialog._instance) {
-            const instance = dialog._instance;
-            if (instance.options.onCancel) {
-                instance.options.onCancel();
+        if (dialog) {
+            const instance = ConfirmDialog.instances.get(dialog);
+            if (instance) {
+                if (instance.options.onCancel) {
+                    instance.options.onCancel();
+                }
+                instance.close();
             }
-            instance.close();
         }
     }
 

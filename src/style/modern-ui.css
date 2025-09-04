@@ -655,7 +655,7 @@ body::before {
     width: 32px;
     height: 32px;
     flex-shrink: 0;
-    background-image: url('/favicon.svg');
+    background-image: url('../public/favicon.svg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

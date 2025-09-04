@@ -240,7 +240,7 @@
     flex-shrink: 0;
     position: relative;
     z-index: 1;
-    background-image: url('/favicon.svg');
+    background-image: url('../public/favicon.svg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
