@@ -64,21 +64,16 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
             cancelText: '取消',
             confirmClass: 'btn-primary',
             onConfirm: async () => {
-                try {
-                    const response = await fetch(`/api/devices/${id}`, {
-                        method: 'DELETE'
-                    });
-                    if (response.ok) {
-                        this.emit('removed', id);
-                        // Reload devices
-                        await this.loadSavedDevices();
-                    } else {
-                        alert('删除设备失败');
-                    }
-                } catch (error) {
-                    console.error('Failed to remove device:', error);
-                    alert('删除设备失败');
-                }
+                // 从内存中移除设备
+                this.savedDevices = this.savedDevices.filter(device => device.id !== id);
+                
+                // 同时从devices.json文件中移除
+                await this.updateDevicesFile();
+                
+                // 重新渲染界面
+                this.render();
+                
+                this.emit('removed', id);
             }
         });
     }
@@ -225,16 +220,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         }
     }
 
-    public removeSavedDevice(deviceId: string): void {
-        // 从内存中移除设备
-        this.savedDevices = this.savedDevices.filter(device => device.id !== deviceId);
-        
-        // 同时从devices.json文件中移除
-        this.updateDevicesFile();
-        
-        // 重新渲染界面
-        this.updateContent();
-    }
 
     private async updateDevicesFile(): Promise<void> {
         try {
