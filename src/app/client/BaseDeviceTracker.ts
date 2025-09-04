@@ -92,7 +92,16 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
         const hash = `#!${new URLSearchParams(q).toString()}`;
         const url = `${protocol}//${hostname}:${port}${pathname}${hash}`;
         const button = document.createElement('button');
-        button.className = `btn btn-purple device-action-btn`;
+        
+        // Only use purple for player buttons (right side)
+        const purpleButtons = ['Broadway.js', 'H264 Converter', 'Tiny H264'];
+        if (purpleButtons.includes(text)) {
+            button.className = `btn btn-purple device-action-btn`;
+        } else {
+            // Default orange for other buttons (shell, devtools, list files)
+            button.className = `btn device-action-btn`;
+        }
+        
         button.innerText = text;
         button.onclick = () => {
             window.open(url, '_blank', 'noopener,noreferrer');
