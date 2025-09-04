@@ -1,11 +1,11 @@
 :root {
-    --main-bg-color: hsl(0, 0%, 100%);
-    --stream-bg-color: hsl(0, 0%, 85%);
+    --main-bg-color: hsl(0, 0%, 98%);
+    --stream-bg-color: hsl(0, 0%, 95%);
     --shell-bg-color: hsl(0, 0%, 0%);
     --text-shadow-color: hsl(218, 67%, 95%);
-    --header-bg-color: hsl(0, 0%, 95%);
-    --controls-bg-color: hsla(0, 0%, 95%, 0.8);
-    --control-buttons-bg-color: hsl(0, 0%, 95%);
+    --header-bg-color: hsl(0, 0%, 100%);
+    --controls-bg-color: hsla(0, 0%, 100%, 0.95);
+    --control-buttons-bg-color: hsl(0, 0%, 100%);
     --text-color: hsl(210, 16%, 22%);
     --text-color-light: hsl(200, 16%, 52%);
     --link-color: hsl(218, 85%, 43%);
@@ -17,10 +17,14 @@
     --kill-button-hover-color: hsl(342, 100%, 37%);
     --url-color: hsl(0, 0%, 60%);
     --button-text-color: hsl(214, 82%, 51%);
-    --button-border-color: hsl(0, 0%, 70%);
+    --button-border-color: hsl(0, 0%, 85%);
     --progress-background-color: hsla(225, 100%, 50%, 0.2);
     --progress-background-error-color: hsla(0, 100%, 50%, 0.2);
     --font-size: 14px;
+    --border-radius: 8px;
+    --transition-speed: 0.2s;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --box-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -71,6 +75,9 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 
@@ -129,6 +136,9 @@ body.stream {
     float: right;
     width: 3.715rem;
     background-color: var(--control-buttons-bg-color);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 0;
 }
 
 .control-button {
@@ -139,10 +149,14 @@ body.stream {
     border: none;
     opacity: 0.75;
     background-color: var(--control-buttons-bg-color);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed) ease;
 }
 
 .control-button:hover {
     opacity: 1;
+    transform: scale(1.1);
+    box-shadow: var(--box-shadow);
 }
 
 .control-wrapper > input[type=checkbox] {

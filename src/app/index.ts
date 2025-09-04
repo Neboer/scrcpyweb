@@ -1,7 +1,9 @@
 import '../style/app.css';
+import '../style/modern-ui.css';
 import { StreamClientScrcpy } from './googDevice/client/StreamClientScrcpy';
 import { HostTracker } from './client/HostTracker';
 import { Tool } from './client/Tool';
+import { QuickConnect } from './ui/QuickConnect';
 
 window.onload = async function (): Promise<void> {
     const hash = location.hash.replace(/^#!/, '');
@@ -108,5 +110,32 @@ window.onload = async function (): Promise<void> {
             DeviceTracker.registerTool(tool);
         });
     }
+    
+    // Initialize Quick Connect panel
+    const quickConnect = QuickConnect.getInstance();
+    
+    // Create toggle button for Quick Connect
+    const toggleButton = document.createElement('div');
+    toggleButton.className = 'toggle-switch';
+    toggleButton.innerHTML = `
+        <button class="toggle-btn" onclick="QuickConnect.getInstance().toggle()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14zm-1-6h-3V8h-2v5H8l4 4 4-4z"/>
+            </svg>
+            Quick Connect
+        </button>
+    `;
+    document.body.appendChild(toggleButton);
+    
+    // Mount Quick Connect panel
+    quickConnect.mount(document.body);
+    
+    // Handle quick connect events
+    quickConnect.on('connect', async (device) => {
+        console.log('Connecting to device:', device);
+        // TODO: Implement actual device connection logic
+        // This will need to interface with the existing device connection system
+    });
+    
     HostTracker.start();
 };

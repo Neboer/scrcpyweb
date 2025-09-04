@@ -76,6 +76,10 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
 
     public async start(): Promise<void> {
         this.mainApp = express();
+        
+        // Add JSON body parser middleware
+        this.mainApp.use(express.json());
+        
         if (HttpServer.SERVE_STATIC && HttpServer.PUBLIC_DIR) {
             this.mainApp.use(PATHNAME, express.static(HttpServer.PUBLIC_DIR));
 
@@ -85,6 +89,23 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
             this.mainApp.get('/mjpeg/:udid', new MjpegProxyFactory().proxyRequest);
             /// #endif
         }
+        
+        // Add device configuration API endpoints
+        const { DeviceConfigManager } = await import('../mw/DeviceConfigManager');
+        this.mainApp.get('/ws-scrcpy/devices.json', DeviceConfigManager.getDevices);
+        this.mainApp.post('/ws-scrcpy/devices.json', DeviceConfigManager.saveDevices);
+        this.mainApp.post('/ws-scrcpy/devices', DeviceConfigManager.addDevice);
+        this.mainApp.delete('/ws-scrcpy/devices/:id', DeviceConfigManager.removeDevice);
+        this.mainApp.put('/ws-scrcpy/devices/:id', DeviceConfigManager.updateDevice);
+        
+        // Add quick connect API endpoints
+        const { QuickConnectHandler } = await import('../mw/QuickConnectHandler');
+        this.mainApp.post('/api/quick-connect', QuickConnectHandler.connectDevice);
+        this.mainApp.delete('/api/quick-connect/:deviceId', QuickConnectHandler.disconnectDevice);
+        this.mainApp.get('/api/quick-connect', QuickConnectHandler.getActiveConnections);
+        
+        // Auto-connect saved devices on startup
+        QuickConnectHandler.autoConnectSavedDevices();
         const config = Config.getInstance();
         config.servers.forEach((serverItem) => {
             const { secure, port, redirectToSecure } = serverItem;

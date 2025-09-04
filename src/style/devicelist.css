@@ -1,8 +1,10 @@
 :root {
-    --device-border-color: hsl(0, 0%, 82%);
-    --device-list-stripe-color: hsl(0, 0%, 96%);
+    --device-border-color: hsl(0, 0%, 90%);
+    --device-list-stripe-color: hsl(0, 0%, 98%);
     --device-list-default-color: hsl(0, 0%, 100%);
-    --device-list-hover-color: hsl(218, 67%, 95%);
+    --device-list-hover-color: hsl(218, 100%, 98%);
+    --device-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --device-card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -97,16 +99,28 @@ body.list #device_list_menu {
 }
 
 #devices .device-state {
-    border-radius: 25px;
-    background-color: red;
+    border-radius: 50%;
+    background-color: #ef4444;
     font-size: 80%;
     margin-left: 6px;
-    width: 1em;
-    height: 1em;
+    width: 12px;
+    height: 12px;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+    animation: pulse 2s infinite;
 }
 
 #devices .device.active .device-state {
-    background-color: green;
+    background-color: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
 }
 
 #devices .device-list {
@@ -124,11 +138,19 @@ body.list #device_list_menu {
 }
 
 #devices .device-list div.device {
-    padding: 5px 20px 5px;
+    padding: 15px 20px;
+    margin: 10px 20px;
+    background: var(--device-list-default-color);
+    border: 1px solid var(--device-border-color);
+    border-radius: 8px;
+    box-shadow: var(--device-card-shadow);
+    transition: all 0.2s ease;
 }
 
 #devices .device-list div.device:hover {
-    background-color: var(--device-list-hover-color)
+    background-color: var(--device-list-hover-color);
+    box-shadow: var(--device-card-hover-shadow);
+    transform: translateY(-2px);
 }
 
 #devices .device-list div.device select {
