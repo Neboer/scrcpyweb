@@ -22,8 +22,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
     private container: HTMLElement;
     private savedDevices: SavedDevice[] = [];
     private isOpen = false;
-    private storageKey = 'ws-scrcpy-saved-devices';
-    private configPath = './devices.json';
 
     public static getInstance(): QuickConnect {
         if (!this.instance) {
@@ -54,19 +52,6 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         this.render();
     }
 
-    private async saveSavedDevices(): Promise<void> {
-        // No longer needed - backend saves automatically on connection
-    }
-
-    private generateDeviceId(): string {
-        return `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    private addSavedDevice(device: Omit<SavedDevice, 'id'>): void {
-        // No longer needed - backend saves automatically on connection
-        // Just connect directly
-        this.connectToDevice(device);
-    }
 
     public async removeSavedDevice(id: string): Promise<void> {
         const device = this.savedDevices.find(d => d.id === id);

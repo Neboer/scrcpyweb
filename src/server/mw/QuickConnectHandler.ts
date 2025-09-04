@@ -8,7 +8,6 @@ import { promisify } from 'util';
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
-const mkdir = promisify(fs.mkdir);
 const exists = (path: string) => fs.promises.access(path).then(() => true).catch(() => false);
 
 interface ConnectRequest {
