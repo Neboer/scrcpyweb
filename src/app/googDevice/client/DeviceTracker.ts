@@ -34,6 +34,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
     public static readonly ACTION = ACTION.GOOG_DEVICE_LIST;
     public static readonly CREATE_DIRECT_LINKS = true;
     private static instancesByUrl: Map<string, DeviceTracker> = new Map();
+    private static deleteEventListenerInitialized = false;
     protected static tools: Set<Tool> = new Set();
     protected tableId = 'goog_device_list';
 
@@ -55,6 +56,88 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         DeviceTracker.instancesByUrl.set(directUrl, this);
         this.buildDeviceTable();
         this.openNewConnection();
+        this.initializeEventListeners();
+    }
+
+    private initializeEventListeners(): void {
+        // 确保事件监听器只添加一次
+        if (DeviceTracker.deleteEventListenerInitialized) {
+            return;
+        }
+        DeviceTracker.deleteEventListenerInitialized = true;
+
+        // 使用事件委托处理删除按钮点击
+        document.addEventListener('click', (event) => {
+            const target = event.target as HTMLElement;
+            const deleteButton = target.closest('.device-delete-btn');
+            
+            if (deleteButton && deleteButton instanceof HTMLElement) {
+                event.preventDefault();
+                
+                // 找到对应的 DeviceTracker 实例
+                const deviceRow = deleteButton.closest('.device');
+                if (deviceRow) {
+                    // 遍历所有实例，找到管理这个设备的实例
+                    for (const instance of DeviceTracker.instancesByUrl.values()) {
+                        const table = document.getElementById(instance.tableId);
+                        if (table && table.contains(deviceRow)) {
+                            instance.handleDeleteDevice(deleteButton as HTMLButtonElement);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private handleDeleteDevice(button: HTMLButtonElement): void {
+        const udid = button.getAttribute('data-udid');
+        const name = button.getAttribute('data-name') || udid;
+        
+        if (!udid) {
+            console.error('No udid found for device deletion');
+            return;
+        }
+
+        import('../../ui/ConfirmDialog').then(({ ConfirmDialog }) => {
+            ConfirmDialog.confirm({
+                title: '删除设备',
+                message: `确定要删除设备"${name}"吗？`,
+                confirmText: '删除',
+                cancelText: '取消',
+                confirmClass: 'btn-primary',
+                onConfirm: async () => {
+                    try {
+                        // 从界面上移除设备
+                        const deviceElement = button.closest('.device');
+                        if (deviceElement && deviceElement instanceof HTMLElement) {
+                            deviceElement.style.transition = 'all 0.3s ease';
+                            deviceElement.style.opacity = '0';
+                            deviceElement.style.transform = 'translateX(-100%)';
+                            setTimeout(() => {
+                                deviceElement.remove();
+                            }, 300);
+                        }
+
+                        // 发送消息到后端删除设备数据
+                        const message: Message = {
+                            id: this.getNextId(),
+                            type: 'DELETE_DEVICE',
+                            data: {
+                                udid: udid
+                            }
+                        };
+
+                        if (this.ws && this.ws.readyState === this.ws.OPEN) {
+                            this.ws.send(JSON.stringify(message));
+                        }
+                    } catch (error) {
+                        console.error('Failed to delete device:', error);
+                        alert('删除设备失败，请重试');
+                    }
+                }
+            });
+        });
     }
 
     protected onSocketOpen(): void {
@@ -191,8 +274,7 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
                     <button class="btn btn-secondary btn-icon device-delete-btn" 
                             title="删除设备" 
                             data-udid="${device.udid}"
-                            data-name="${device['ro.product.manufacturer']} ${device['ro.product.model']}"
-                            onclick="(window as any).DeviceTracker.handleDeleteDevice(this)">
+                            data-name="${device['ro.product.manufacturer']} ${device['ro.product.model']}">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                             <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                         </svg>
@@ -356,49 +438,6 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
         }
     }
 
-    public static handleDeleteDevice(button: HTMLButtonElement): void {
-        const udid = button.getAttribute('data-udid');
-        const name = button.getAttribute('data-name') || udid;
-        
-        import('../../ui/ConfirmDialog').then(({ ConfirmDialog }) => {
-            ConfirmDialog.confirm({
-                title: '删除设备',
-                message: `确定要删除设备"${name}"吗？`,
-                confirmText: '删除',
-                cancelText: '取消',
-                confirmClass: 'btn-primary',
-                onConfirm: async () => {
-                    try {
-                        // Call backend API to delete device
-                        const response = await fetch(`/api/devices/${udid}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        
-                        if (!response.ok) {
-                            throw new Error('Failed to delete device');
-                        }
-                        
-                        // If backend deletion successful, remove from UI
-                        const deviceElement = button.closest('.device');
-                        if (deviceElement && deviceElement instanceof HTMLElement) {
-                            deviceElement.style.transition = 'all 0.3s ease';
-                            deviceElement.style.opacity = '0';
-                            deviceElement.style.transform = 'translateX(-100%)';
-                            setTimeout(() => {
-                                deviceElement.remove();
-                            }, 300);
-                        }
-                    } catch (error) {
-                        console.error('Failed to delete device:', error);
-                        alert('删除设备失败，请重试');
-                    }
-                }
-            });
-        });
-    }
 
     protected getChannelCode(): string {
         return ChannelCode.GTRC;
@@ -416,10 +455,3 @@ export class DeviceTracker extends BaseDeviceTracker<GoogDeviceDescriptor, never
     }
 }
 
-// Make DeviceTracker available globally for onclick handlers
-declare global {
-    interface Window {
-        DeviceTracker: typeof DeviceTracker;
-    }
-}
-window.DeviceTracker = DeviceTracker;
