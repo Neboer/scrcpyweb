@@ -1,10 +1,14 @@
 /* Modern UI Theme */
 :root {
-    /* Primary Colors */
+    /* Primary Colors - Orange */
     --primary-color: #f97316;
     --primary-hover: #ea580c;
     --primary-light: #60a5fa;
     --primary-dark: #1e40af;
+    
+    /* Blue Colors for specific buttons */
+    --blue-color: #3b82f6;
+    --blue-hover: #2563eb;
     
     /* Secondary Colors */
     --secondary-color: #8b5cf6;

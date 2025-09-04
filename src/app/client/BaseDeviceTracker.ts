@@ -100,6 +100,33 @@ export abstract class BaseDeviceTracker<DD extends BaseDeviceDescriptor, TE exte
         return button;
     }
 
+    public static buildBlueButton(q: any, text: string, params: ParamsDeviceTracker): HTMLButtonElement {
+        let { hostname } = params;
+        let port: string | number | undefined = params.port;
+        let pathname = params.pathname ?? location.pathname;
+        let protocol = params.secure ? 'https:' : 'http:';
+        if (params.useProxy) {
+            q.hostname = hostname;
+            q.port = port;
+            q.pathname = pathname;
+            q.secure = params.secure;
+            q.useProxy = true;
+            protocol = location.protocol;
+            hostname = location.hostname;
+            port = location.port;
+            pathname = location.pathname;
+        }
+        const hash = `#!${new URLSearchParams(q).toString()}`;
+        const url = `${protocol}//${hostname}:${port}${pathname}${hash}`;
+        const button = document.createElement('button');
+        button.className = `btn btn-blue`;
+        button.innerText = text;
+        button.onclick = () => {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        };
+        return button;
+    }
+
     protected title = '设备列表';
     protected tableId = 'base_device_list';
     protected descriptors: DD[] = [];

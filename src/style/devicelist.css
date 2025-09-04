@@ -201,6 +201,28 @@ body.list #device_list_menu {
     box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
 }
 
+/* 蓝色按钮样式 - 用于右侧按钮 */
+#devices .services button.btn-blue {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: fit-content;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--blue-color) 0%, var(--blue-hover) 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+#devices .services button.btn-blue:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
 #devices .device-state {
     border-radius: 50%;
     background-color: #ef4444;

@@ -429,7 +429,7 @@ export class StreamClientScrcpy
                     ${Attribute.PATHNAME}="${params.pathname}"
                     ${Attribute.USE_PROXY}="${params.useProxy}"
                     id="${configureButtonId}"
-                    class="active action-button"
+                    class="btn btn-blue"
                 >
                     配置流
                 </button>

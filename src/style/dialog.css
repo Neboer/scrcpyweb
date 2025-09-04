@@ -24,15 +24,19 @@
 
 .dialog-container {
     font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-    width: 90%;
-    max-width: 500px;
-    min-width: 320px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    width: 95%;
+    max-width: 800px;
+    min-width: 600px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(25px);
+    border-radius: 20px;
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
     overflow: hidden;
-    animation: slideUp 0.3s ease;
+    animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateZ(0);
 }
 
 .dialog-container.ready {
@@ -48,19 +52,20 @@
 }
 
 .dialog-container button {
-    font-size: 14px;
-    font-weight: 500;
-    padding: 10px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 24px;
     background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     color: white;
     border: none;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+    min-height: 50px;
 }
 
 .dialog-container button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(249, 115, 22, 0.5);
 }
 
 .dialog-container button:disabled {
@@ -72,11 +77,19 @@
 
 .dialog-container select {
     text-overflow: ellipsis;
-    padding: 8px 12px;
+    padding: 14px 16px;
     background: white;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 6px;
-    font-size: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 16px;
+    min-height: 50px;
+    box-sizing: border-box;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
 }
 
 .dialog-container select:focus {
@@ -86,11 +99,13 @@
 }
 
 .dialog-container input {
-    padding: 8px 12px;
+    padding: 14px 16px;
     background: white;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 6px;
-    font-size: 14px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 16px;
+    min-height: 50px;
+    box-sizing: border-box;
 }
 
 .dialog-container input:focus {
@@ -103,28 +118,45 @@
 }
 
 .dialog-header {
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-    height: 60px;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%, #dc2626 100%);
+    height: 80px;
     overflow: hidden;
     display: flex;
     align-items: center;
     width: auto;
-    position: initial;
-    padding: 0 24px;
+    position: relative;
+    padding: 0 32px;
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.15);
+}
+
+.dialog-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    pointer-events: none;
 }
 
 .dialog-header span.dialog-title {
     display: inline-block;
     padding: 0;
     color: white;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 .dialog-body {
-    padding: 24px;
-    background: white;
+    padding: 32px 40px;
+    background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
     overflow: auto;
+    min-height: 400px;
 }
 
 .dialog-body.hidden {
@@ -192,16 +224,18 @@
 
 .controls {
     display: grid;
-    grid-template-columns: [labels] 35% [controls] 65%;
-    padding: 0 0 16px 0;
-    grid-gap: 12px;
+    grid-template-columns: [labels] 200px [controls] 1fr;
+    padding: 0 0 24px 0;
+    grid-gap: 20px;
     align-items: center;
 }
 
 .controls .label {
     color: #374151;
-    font-weight: 500;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 16px;
+    text-align: right;
+    padding-right: 8px;
 }
 
 /* 动画效果 */
@@ -226,55 +260,89 @@
 }
 
 /* 响应式设计 */
+@media (max-width: 1024px) {
+    .dialog-container {
+        width: 90%;
+        max-width: 700px;
+        min-width: 500px;
+    }
+    
+    .controls {
+        grid-template-columns: [labels] 160px [controls] 1fr;
+        grid-gap: 16px;
+    }
+}
+
 @media (max-width: 768px) {
     .dialog-container {
         width: 95%;
         max-width: none;
-        margin: 20px;
-        border-radius: 12px;
+        min-width: 350px;
+        margin: 15px;
+        border-radius: 16px;
     }
     
     .dialog-header {
-        padding: 0 16px;
-        height: 50px;
+        padding: 0 20px;
+        height: 70px;
     }
     
     .dialog-header span.dialog-title {
-        font-size: 16px;
+        font-size: 20px;
     }
     
     .dialog-body {
-        padding: 16px;
+        padding: 24px 20px;
+        min-height: 300px;
     }
     
     .controls {
         grid-template-columns: 1fr;
-        grid-gap: 8px;
+        grid-gap: 12px;
     }
     
     .controls .label {
-        margin-bottom: 4px;
+        text-align: left;
+        padding-right: 0;
+        margin-bottom: 8px;
+        font-size: 15px;
     }
 }
 
 @media (max-width: 480px) {
     .dialog-container {
         width: 100%;
+        min-width: 300px;
         margin: 10px;
-        border-radius: 8px;
+        border-radius: 12px;
     }
     
     .dialog-header {
-        padding: 0 12px;
-        height: 48px;
+        padding: 0 16px;
+        height: 60px;
+    }
+    
+    .dialog-header span.dialog-title {
+        font-size: 18px;
     }
     
     .dialog-body {
-        padding: 12px;
+        padding: 20px 16px;
+        min-height: 250px;
     }
     
     .dialog-container button {
         width: 100%;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        font-size: 15px;
+        padding: 12px 20px;
+        min-height: 45px;
+    }
+    
+    .dialog-container input,
+    .dialog-container select {
+        font-size: 15px;
+        padding: 12px 14px;
+        min-height: 45px;
     }
 }
