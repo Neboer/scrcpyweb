@@ -35,7 +35,7 @@ export class GoogMoreBox {
         const input = (this.input = document.createElement('textarea'));
         input.classList.add('text-area');
         const sendButton = document.createElement('button');
-        sendButton.innerText = 'Send as keys';
+        sendButton.innerText = '作为按键发送';
 
         const inputWrapper = GoogMoreBox.wrap('p', [input, sendButton], moreBox);
         sendButton.onclick = () => {
@@ -72,7 +72,7 @@ export class GoogMoreBox {
                 spoiler.appendChild(innerDiv);
 
                 const bitrateLabel = document.createElement('label');
-                bitrateLabel.innerText = 'Bitrate:';
+                bitrateLabel.innerText = '比特率：';
                 bitrateInput = document.createElement('input');
                 bitrateInput.placeholder = `${preferredSettings.bitrate} bps`;
                 bitrateInput.value = videoSettings.bitrate.toString();
@@ -80,17 +80,17 @@ export class GoogMoreBox {
                 this.bitrateInput = bitrateInput;
 
                 const maxFpsLabel = document.createElement('label');
-                maxFpsLabel.innerText = 'Max fps:';
+                maxFpsLabel.innerText = '最大帧率：';
                 maxFpsInput = document.createElement('input');
-                maxFpsInput.placeholder = `${preferredSettings.maxFps} fps`;
+                maxFpsInput.placeholder = `${preferredSettings.maxFps} 帧/秒`;
                 maxFpsInput.value = videoSettings.maxFps.toString();
                 GoogMoreBox.wrap('div', [maxFpsLabel, maxFpsInput], innerDiv);
                 this.maxFpsInput = maxFpsInput;
 
                 const iFrameIntervalLabel = document.createElement('label');
-                iFrameIntervalLabel.innerText = 'I-Frame Interval:';
+                iFrameIntervalLabel.innerText = 'I帧间隔：';
                 iFrameIntervalInput = document.createElement('input');
-                iFrameIntervalInput.placeholder = `${preferredSettings.iFrameInterval} seconds`;
+                iFrameIntervalInput.placeholder = `${preferredSettings.iFrameInterval} 秒`;
                 iFrameIntervalInput.value = videoSettings.iFrameInterval.toString();
                 GoogMoreBox.wrap('div', [iFrameIntervalLabel, iFrameIntervalInput], innerDiv);
                 this.iFrameIntervalInput = iFrameIntervalInput;
@@ -100,28 +100,28 @@ export class GoogMoreBox {
                 const pHeight = preferredSettings.bounds?.height || height;
 
                 const maxWidthLabel = document.createElement('label');
-                maxWidthLabel.innerText = 'Max width:';
+                maxWidthLabel.innerText = '最大宽度：';
                 maxWidthInput = document.createElement('input');
-                maxWidthInput.placeholder = `${pWidth} px`;
+                maxWidthInput.placeholder = `${pWidth} 像素`;
                 maxWidthInput.value = width.toString();
                 GoogMoreBox.wrap('div', [maxWidthLabel, maxWidthInput], innerDiv);
                 this.maxWidthInput = maxWidthInput;
 
                 const maxHeightLabel = document.createElement('label');
-                maxHeightLabel.innerText = 'Max height:';
+                maxHeightLabel.innerText = '最大高度：';
                 maxHeightInput = document.createElement('input');
-                maxHeightInput.placeholder = `${pHeight} px`;
+                maxHeightInput.placeholder = `${pHeight} 像素`;
                 maxHeightInput.value = height.toString();
                 GoogMoreBox.wrap('div', [maxHeightLabel, maxHeightInput], innerDiv);
                 this.maxHeightInput = maxHeightInput;
 
                 innerDiv.appendChild(btn);
                 const fitButton = document.createElement('button');
-                fitButton.innerText = 'Fit';
+                fitButton.innerText = '适应';
                 fitButton.onclick = this.fit;
                 innerDiv.insertBefore(fitButton, innerDiv.firstChild);
                 const resetButton = document.createElement('button');
-                resetButton.innerText = 'Reset';
+                resetButton.innerText = '重置';
                 resetButton.onclick = this.reset;
                 innerDiv.insertBefore(resetButton, innerDiv.firstChild);
                 commands.push(spoiler);
@@ -180,15 +180,15 @@ export class GoogMoreBox {
         const screenPowerModeId = `screen_power_mode_${udid}_${playerName}_${displayId}`;
         const screenPowerModeLabel = document.createElement('label');
         screenPowerModeLabel.style.display = 'none';
-        const labelTextPrefix = 'Mode';
-        const buttonTextPrefix = 'Set screen power mode';
+        const labelTextPrefix = '模式';
+        const buttonTextPrefix = '设置屏幕电源模式';
         const screenPowerModeCheck = document.createElement('input');
         screenPowerModeCheck.type = 'checkbox';
-        let mode = (screenPowerModeCheck.checked = false) ? 'ON' : 'OFF';
+        let mode = (screenPowerModeCheck.checked = false) ? '开' : '关';
         screenPowerModeCheck.id = screenPowerModeLabel.htmlFor = screenPowerModeId;
         screenPowerModeLabel.innerText = `${labelTextPrefix} ${mode}`;
         screenPowerModeCheck.onchange = () => {
-            mode = screenPowerModeCheck.checked ? 'ON' : 'OFF';
+            mode = screenPowerModeCheck.checked ? '开' : '关';
             screenPowerModeLabel.innerText = `${labelTextPrefix} ${mode}`;
             sendScreenPowerModeButton.innerText = `${buttonTextPrefix} ${mode}`;
         };
@@ -209,7 +209,7 @@ export class GoogMoreBox {
         qualityCheck.checked = BasePlayer.DEFAULT_SHOW_QUALITY_STATS;
         qualityCheck.id = qualityId;
         qualityLabel.htmlFor = qualityId;
-        qualityLabel.innerText = 'Show quality stats';
+        qualityLabel.innerText = '显示质量统计';
         GoogMoreBox.wrap('p', [qualityCheck, qualityLabel], moreBox, ['flex-center']);
         qualityCheck.onchange = () => {
             player.setShowQualityStats(qualityCheck.checked);
@@ -231,7 +231,7 @@ export class GoogMoreBox {
         };
 
         const stopBtn = document.createElement('button') as HTMLButtonElement;
-        stopBtn.innerText = `Disconnect`;
+        stopBtn.innerText = '断开连接';
         stopBtn.onclick = stop;
 
         GoogMoreBox.wrap('p', [stopBtn], moreBox);

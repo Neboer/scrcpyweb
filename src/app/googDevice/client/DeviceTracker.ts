@@ -21,11 +21,11 @@ type DescriptionColumn = { title: string; field: Field };
 
 const DESC_COLUMNS: DescriptionColumn[] = [
     {
-        title: 'Net Interface',
+        title: '网络接口',
         field: 'interfaces',
     },
     {
-        title: 'Server PID',
+        title: '服务器 PID',
         field: 'pid',
     },
 ];

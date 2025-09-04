@@ -101,12 +101,14 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                 await this.loadSavedDevices();
                 
                 this.emit('connect', device);
-                this.close();
                 
-                // Refresh the page to show the connected device
+                // Show success message
+                this.showSuccessMessage(`成功连接到设备: ${device.name}`);
+                
+                // Close the panel after a short delay
                 setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
+                    this.close();
+                }, 1500);
             } else {
                 alert(`连接失败: ${result.error || '未知错误'}`);
             }
@@ -274,6 +276,28 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
         if (this.container.parentElement) {
             this.container.parentElement.removeChild(this.container);
         }
+    }
+
+    private showSuccessMessage(message: string): void {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message fade-in';
+        successDiv.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <span>${message}</span>
+        `;
+        
+        // Insert at the top of the panel
+        const panel = this.container.querySelector('.quick-connect-panel');
+        if (panel && panel.firstElementChild) {
+            panel.insertBefore(successDiv, panel.firstElementChild.nextSibling);
+        }
+        
+        // Remove after animation
+        setTimeout(() => {
+            successDiv.remove();
+        }, 3000);
     }
 }
 
