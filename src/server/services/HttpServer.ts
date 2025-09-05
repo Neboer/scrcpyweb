@@ -110,8 +110,8 @@ export class HttpServer extends TypedEmitter<HttpServerEvents> implements Servic
         this.mainApp.delete('/api/quick-connect/:deviceId', QuickConnectHandler.disconnectDevice);
         this.mainApp.get('/api/quick-connect', QuickConnectHandler.getActiveConnections);
         
-        // Auto-connect saved devices on startup
-        QuickConnectHandler.autoConnectSavedDevices();
+        // Auto-connect saved devices on startup - DISABLED
+        // QuickConnectHandler.autoConnectSavedDevices();
         const config = Config.getInstance();
         config.servers.forEach((serverItem) => {
             const { secure, port, redirectToSecure } = serverItem;

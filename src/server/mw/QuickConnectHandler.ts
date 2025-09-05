@@ -116,8 +116,8 @@ export class QuickConnectHandler {
                 connectedAt: new Date()
             });
 
-            // Save device info to devices.json
-            await QuickConnectHandler.saveDeviceToFile(name, host, port);
+            // Save device info to devices.json - DISABLED
+            // await QuickConnectHandler.saveDeviceToFile(name, host, port);
 
             return res.json({
                 success: true,
@@ -161,38 +161,23 @@ export class QuickConnectHandler {
     };
 
     /**
-     * Delete a device from devices.json
+     * Delete a device from memory (no file operations)
      */
     public static removeDevice: RequestHandler = async (req, res) => {
         const { id } = req.params;
         
         try {
-            let devices: SavedDevice[] = [];
-            
-            // Read existing devices
-            if (await exists(QuickConnectHandler.DEVICES_FILE)) {
-                const data = await readFile(QuickConnectHandler.DEVICES_FILE, 'utf-8');
-                try {
-                    devices = JSON.parse(data);
-                } catch (e) {
-                    devices = [];
-                }
-            }
-            
-            // Filter out the device to delete
-            const originalLength = devices.length;
-            devices = devices.filter(d => d.id !== id);
-            
-            if (devices.length === originalLength) {
+            // Check if device exists in memory
+            if (!QuickConnectHandler.activeConnections.has(id)) {
                 return res.status(404).json({
                     success: false,
                     error: 'Device not found'
                 });
             }
             
-            // Write back to file
-            await writeFile(QuickConnectHandler.DEVICES_FILE, JSON.stringify(devices, null, 2));
-            console.log(`Deleted device ${id} from devices.json`);
+            // Remove from memory
+            QuickConnectHandler.activeConnections.delete(id);
+            console.log(`Removed device ${id} from memory`);
             
             return res.json({ success: true });
         } catch (error) {
@@ -205,20 +190,18 @@ export class QuickConnectHandler {
     };
 
     /**
-     * Get list of saved devices from devices.json
+     * Get list of saved devices from memory (no file reading)
      */
     public static getDevices: RequestHandler = async (_req, res) => {
         try {
-            let devices: SavedDevice[] = [];
-            
-            if (await exists(QuickConnectHandler.DEVICES_FILE)) {
-                const data = await readFile(QuickConnectHandler.DEVICES_FILE, 'utf-8');
-                try {
-                    devices = JSON.parse(data);
-                } catch (e) {
-                    devices = [];
-                }
-            }
+            // Return active connections from memory instead of reading file
+            const devices = Array.from(QuickConnectHandler.activeConnections.entries()).map(([id, info]) => ({
+                id,
+                name: info.name,
+                host: info.host,
+                port: info.port,
+                lastConnected: info.connectedAt
+            }));
             
             return res.json(devices);
         } catch (error) {
@@ -228,7 +211,7 @@ export class QuickConnectHandler {
     };
 
     /**
-     * Update devices in devices.json
+     * Update devices in memory (no file operations)
      */
     public static updateDevices: RequestHandler = async (req, res) => {
         try {
@@ -241,8 +224,9 @@ export class QuickConnectHandler {
                 });
             }
             
-            await writeFile(QuickConnectHandler.DEVICES_FILE, JSON.stringify(devices, null, 2));
-            console.log('Updated devices.json');
+            // Since we're not using file storage, this method doesn't do much
+            // It's kept for API compatibility
+            console.log('Update devices request received (no-op in memory mode)');
             
             return res.json({ success: true });
         } catch (error) {
