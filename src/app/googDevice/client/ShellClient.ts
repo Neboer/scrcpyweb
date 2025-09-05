@@ -1,4 +1,5 @@
 import 'xterm/css/xterm.css';
+import '../../../style/shell.css';
 import { ManagerClient } from '../../client/ManagerClient';
 import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
@@ -40,8 +41,13 @@ export class ShellClient extends ManagerClient<ParamsShell, never> {
         this.term.loadAddon(this.fitAddon);
         this.escapedUdid = Util.escapeUdid(this.udid);
         this.term.open(ShellClient.getOrCreateContainer(this.escapedUdid));
-        this.updateTerminalSize();
+        this.fitAddon.fit();
         this.term.focus();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            this.fitAddon.fit();
+        });
     }
 
     protected supportMultiplexing(): boolean {
@@ -99,20 +105,6 @@ export class ShellClient extends ManagerClient<ParamsShell, never> {
         return container;
     }
 
-    private updateTerminalSize(): void {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const term: any = this.term;
-        const terminalContainer: HTMLElement = ShellClient.getOrCreateContainer(this.escapedUdid);
-        const { rows, cols } = this.fitAddon.proposeDimensions();
-        const width =
-            (cols * term._core._renderService.dimensions.actualCellWidth + term._core.viewport.scrollBarWidth).toFixed(
-                2,
-            ) + 'px';
-        const height = (rows * term._core._renderService.dimensions.actualCellHeight).toFixed(2) + 'px';
-        terminalContainer.style.width = width;
-        terminalContainer.style.height = height;
-        this.fitAddon.fit();
-    }
 
     public static createEntryForDeviceList(
         descriptor: GoogDeviceDescriptor,
