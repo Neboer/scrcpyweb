@@ -14,7 +14,7 @@ body.shell {
     background-color: #0c0c0c;
     border-radius: 8px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    padding: 20px;
+    padding: 60px 20px 20px 20px;
     min-width: 800px;
     min-height: 480px;
     display: flex;
@@ -33,11 +33,12 @@ body.shell {
     display: flex;
     align-items: center;
     padding: 0 15px;
+    z-index: 1;
 }
 
 .terminal-container .xterm {
-    padding-top: 50px;
     flex: 1;
+    height: 100%;
 }
 
 /* Terminal theme customization */
