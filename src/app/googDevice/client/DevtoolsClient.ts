@@ -175,7 +175,7 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
         const s = document.createElement('span');
         s.setAttribute('tabIndex', '1');
         s.className = 'action';
-        s.innerText = 'trace';
+        s.innerText = '跟踪';
         s.setAttribute('hidden', 'hidden');
         h.appendChild(s);
         const pages = document.createElement('div');
@@ -303,7 +303,7 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
         pause.setAttribute('hidden', 'hidden');
         pause.setAttribute('tabIndex', '1');
         pause.className = 'action';
-        pause.innerText = 'pause';
+        pause.innerText = '暂停';
         actions.appendChild(pause);
         return row;
     }
@@ -368,7 +368,7 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
                     action: ACTION.DEVTOOLS,
                     udid: descriptor.udid,
                 },
-                '开发者工具',
+                'devtools',
                 params,
             ),
         );
