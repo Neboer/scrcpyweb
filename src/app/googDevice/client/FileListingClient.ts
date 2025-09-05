@@ -43,8 +43,8 @@ enum Foreground {
 }
 
 const Message: Record<Foreground, string> = {
-    [Foreground.Drop]: 'Drop files here',
-    [Foreground.Connect]: 'Connection lost',
+    [Foreground.Drop]: '拖拽文件到这里',
+    [Foreground.Connect]: '连接已断开',
 };
 
 export class FileListingClient extends ManagerClient<ParamsFileListing, never> implements DragAndPushListener {
@@ -75,7 +75,7 @@ export class FileListingClient extends ManagerClient<ParamsFileListing, never> i
                     udid: descriptor.udid,
                     path: `${tempPath}/`,
                 },
-                'list files',
+                '浏览文件',
                 params,
             ),
         );
@@ -103,31 +103,31 @@ export class FileListingClient extends ManagerClient<ParamsFileListing, never> i
         this.serial = this.params.udid;
         this.path = this.params.path;
         this.openNewConnection();
-        this.setTitle(`Listing ${this.serial}`);
+        this.setTitle(`文件浏览 ${this.serial}`);
         this.setBodyClass('file-listing');
         this.name = `${TAG} [${this.serial}]`;
         this.tableBodyId = `${Util.escapeUdid(this.serial)}_list`;
         this.wrapperId = `wrapper_${this.tableBodyId}`;
         const fragment = html`<div id="${this.wrapperId}" class="listing">
-            <h1 id="header">Contents ${this.path}</h1>
+            <h1 id="header">文件夹内容 ${this.path}</h1>
             <div id="${parentDirLinkBox}" class="quick-link-box">
-                <a class="icon up" href="#!" ${FileListingClient.PROPERTY_NAME}=".."> [parent] </a>
+                <a class="icon up" href="#!" ${FileListingClient.PROPERTY_NAME}=".."> [返回上一级] </a>
             </div>
             <div id="${rootDirLinkBox}" class="quick-link-box">
-                <a class="icon dir" href="#!" ${FileListingClient.PROPERTY_NAME}="${rootPath}"> [root] </a>
+                <a class="icon dir" href="#!" ${FileListingClient.PROPERTY_NAME}="${rootPath}"> [根目录] </a>
             </div>
             <div id="${storageDirLinkBox}" class="quick-link-box">
-                <a class="icon dir" href="#!" ${FileListingClient.PROPERTY_NAME}="${storagePath}/"> [storage] </a>
+                <a class="icon dir" href="#!" ${FileListingClient.PROPERTY_NAME}="${storagePath}/"> [存储] </a>
             </div>
             <div id="${tempDirLinkBox}" class="quick-link-box">
-                <a class="icon dir" href="#!" ${FileListingClient.PROPERTY_NAME}="${tempPath}/"> [temp] </a>
+                <a class="icon dir" href="#!" ${FileListingClient.PROPERTY_NAME}="${tempPath}/"> [临时文件夹] </a>
             </div>
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Size</th>
-                        <th>MTime</th>
+                        <th>文件名</th>
+                        <th>大小</th>
+                        <th>修改时间</th>
                     </tr>
                 </thead>
                 <tbody id="${this.tableBodyId}"></tbody>

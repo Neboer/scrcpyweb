@@ -31,14 +31,14 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
         super(params);
         this.udid = this.params.udid;
         this.openNewConnection();
-        this.setTitle(`Devtools ${this.udid}`);
+        this.setTitle(`开发者工具 ${this.udid}`);
         this.setBodyClass('devtools');
         this.hiddenInput = document.createElement('input');
         this.hiddenInput.className = 'hidden';
         this.hiddenInput.setAttribute('hidden', 'hidden');
         document.body.appendChild(this.hiddenInput);
         this.tooltip = document.createElement('span');
-        this.tooltip.innerText = 'Copied!';
+        this.tooltip.innerText = '已复制！';
         this.tooltip.className = 'tooltip';
         this.tooltip.style.display = 'none';
         document.body.appendChild(this.tooltip);
@@ -224,11 +224,11 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
                 const desc = JSON.parse(page.description) as TargetDescription;
                 const position = document.createElement('div');
                 position.className = 'position';
-                position.innerText = `at (${desc.screenX}, ${desc.screenY})`;
+                position.innerText = `位置 (${desc.screenX}, ${desc.screenY})`;
                 sub2.appendChild(position);
                 const size = document.createElement('div');
                 size.className = 'size';
-                size.innerText = `size ${desc.width} × ${desc.height}`;
+                size.innerText = `尺寸 ${desc.width} × ${desc.height}`;
                 sub2.appendChild(size);
             } catch (error: any) {}
         }
@@ -240,7 +240,7 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
         const inspect = document.createElement('a');
         inspect.setAttribute('tabIndex', '1');
         inspect.className = 'action';
-        inspect.innerText = 'inspect';
+        inspect.innerText = '检查';
         actions.appendChild(inspect);
 
         if (page.devtoolsFrontendUrl) {
@@ -259,8 +259,8 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
             const bundled = document.createElement('a');
             bundled.setAttribute('tabIndex', '1');
             bundled.className = 'action copy';
-            bundled.innerText = 'bundled';
-            bundled.title = 'Copy link and open manually';
+            bundled.innerText = '本地版';
+            bundled.title = '复制链接并手动打开';
             actions.appendChild(bundled);
 
             const base = 'devtools://devtools/bundled/inspector.html?experiments=true&ws=';
@@ -288,8 +288,8 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
                 const remote = document.createElement('a');
                 remote.setAttribute('tabIndex', '1');
                 remote.className = 'action copy';
-                remote.innerText = 'remote';
-                remote.title = 'Copy link and open manually';
+                remote.innerText = '远程版';
+                remote.title = '复制链接并手动打开';
                 actions.appendChild(remote);
 
                 remote.setAttribute('href', url);
@@ -368,7 +368,7 @@ export class DevtoolsClient extends ManagerClient<ParamsDevtools, never> {
                     action: ACTION.DEVTOOLS,
                     udid: descriptor.udid,
                 },
-                'devtools',
+                '开发者工具',
                 params,
             ),
         );

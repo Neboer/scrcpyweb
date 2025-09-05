@@ -1,64 +1,98 @@
 
+/* Devtools Modern UI Styles */
 body.devtools {
-    font-family: Ubuntu, Arial, sans-serif;
-    font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "Microsoft YaHei", Arial, sans-serif;
+    font-size: 14px;
+    background-color: #f5f5f7;
+    margin: 0;
+    padding: 0;
+    color: #333;
 }
 
 body.devtools .device {
-    padding: 20px;
+    background: white;
+    margin: 20px;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+body.devtools .device:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 body.devtools .device-header {
-    -webkit-box-align: baseline;
-    -webkit-box-orient: horizontal;
-    display: -webkit-box;
-    margin: 10px 0 0;
-    padding: 2px 0;
+    display: flex;
+    align-items: baseline;
+    flex-direction: row;
+    margin: 0 0 20px 0;
+    padding: 16px 0;
+    border-bottom: 2px solid #f0f0f2;
 }
 
 body.devtools .device-name {
-    font-size: 150%;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d1d1f;
 }
 
 body.devtools .device-serial {
-    color: var(--url-color);
-    font-size: 80%;
-    margin-left: 6px;
+    color: #6e6e73;
+    font-size: 14px;
+    margin-left: 12px;
+    font-family: 'SF Mono', Monaco, 'Courier New', monospace;
 }
 
 body.devtools .browser-header {
     align-items: center;
     display: flex;
     flex-flow: row wrap;
-    min-height: 33px;
-    padding-top: 10px;
+    min-height: 40px;
+    padding: 16px;
+    background-color: #f9f9fb;
+    border-radius: 8px;
+    margin-bottom: 12px;
 }
 
 body.devtools .browser-header > .browser-name {
-    font-size: 110%;
-    font-weight: bold;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d1d1f;
 }
 
 body.devtools div.list {
-    margin-top: 5px;
+    margin-top: 12px;
 }
 
 body.devtools div.list > .row {
-    padding: 6px 0;
+    padding: 12px 16px;
     position: relative;
+    background-color: #f9f9fb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+body.devtools div.list > .row:hover {
+    background-color: #f0f0f2;
+    transform: translateX(4px);
 }
 
 body.devtools .properties-box {
     display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 body.devtools .properties-box > img {
     flex-shrink: 0;
-    height: 23px;
-    padding-left: 2px;
-    padding-right: 5px;
-    vertical-align: top;
-    width: 23px;
+    height: 32px;
+    width: 32px;
+    border-radius: 6px;
+    background-color: white;
+    padding: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 body.devtools .subrow-box {
@@ -84,14 +118,34 @@ body.devtools .subrow > div {
 }
 
 body.devtools .action {
-    color: var(--link-color);
+    color: #007AFF;
     cursor: pointer;
-    margin-right: 15px;
+    margin-right: 20px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+body.devtools .action:hover {
+    background-color: #007AFF;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
 }
 
 body.devtools .action.disabled {
-    color: var(--url-color);
+    color: #c7c7cc;
     cursor: not-allowed;
+    background-color: #f2f2f7;
+}
+
+body.devtools .action.disabled:hover {
+    transform: none;
+    box-shadow: none;
+    background-color: #f2f2f7;
+    color: #c7c7cc;
 }
 
 body.devtools a.action {
@@ -115,9 +169,18 @@ body.devtools .open > input {
 }
 
 body.devtools .tooltip {
-    z-index: 1;
+    z-index: 1000;
     position: absolute;
-    padding: 2px;
-    color: var(--controls-bg-color);
-    background-color: var(--text-color);
+    padding: 8px 12px;
+    color: white;
+    background-color: #1d1d1f;
+    border-radius: 6px;
+    font-size: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
