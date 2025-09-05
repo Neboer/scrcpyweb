@@ -203,31 +203,16 @@ window.onload = async function (): Promise<void> {
                 // 检查设备是否已经在列表中
                 // 查找包含该 IP:PORT 的设备序列号
                 const deviceAddress = `${device.host}:${device.port}`;
-                const deviceInList = document.querySelector(`.device-serial:contains("${deviceAddress}")`)
-                    || document.querySelector(`[data-udid*="${deviceAddress}"]`)
-                    || Array.from(document.querySelectorAll('.device-serial')).find(el => el.textContent?.includes(deviceAddress));
+                const deviceInList = Array.from(document.querySelectorAll('.device-serial')).find(el => 
+                    el.textContent?.includes(deviceAddress)
+                ) || document.querySelector(`[data-udid*="${deviceAddress}"]`);
                 
                 if (!deviceInList) {
                     // 设备不在列表中，显示超时错误
                     quickConnect.handleConnectionResult(false, '连接超时，请检查设备IP和端口是否正确');
                 } else {
-                    // 设备已经在列表中，只恢复按钮状态
-                    const hostInput = quickConnect.getContainer().querySelector('#device-host') as HTMLInputElement;
-                    const portInput = quickConnect.getContainer().querySelector('#device-port') as HTMLInputElement;
-                    const connectButton = quickConnect.getContainer().querySelector('button[type="submit"]') as HTMLButtonElement;
-                    if (hostInput) {
-                        hostInput.disabled = false;
-                        hostInput.value = '';
-                    }
-                    if (portInput) {
-                        portInput.disabled = false;
-                        portInput.value = '5555';
-                    }
-                    if (connectButton) {
-                        connectButton.disabled = false;
-                        connectButton.innerHTML = '连接';
-                    }
-                    quickConnect.close();
+                    // 设备已经在列表中，显示成功提示
+                    quickConnect.handleConnectionResult(true, `设备已连接: ${device.host}:${device.port}`);
                 }
             }, 10000); // 10 second timeout
         } else {
