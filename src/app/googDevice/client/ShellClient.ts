@@ -1,5 +1,4 @@
 import 'xterm/css/xterm.css';
-import '../../../style/shell.css';
 import { ManagerClient } from '../../client/ManagerClient';
 import { Terminal } from 'xterm';
 import { AttachAddon } from 'xterm-addon-attach';
