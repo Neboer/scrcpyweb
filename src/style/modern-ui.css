@@ -505,11 +505,11 @@ body::before {
     flex-wrap: wrap;
 }
 
-/* Toggle Switch */
+/* Toggle Switch - Right Top Position */
 .toggle-switch {
     position: fixed;
-    bottom: var(--spacing-md);
-    right: var(--spacing-md);
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
     z-index: 1000;
 }
 
@@ -759,7 +759,7 @@ body::before {
     }
     
     .toggle-switch {
-        bottom: var(--spacing-sm);
+        top: var(--spacing-sm);
         right: var(--spacing-sm);
     }
     

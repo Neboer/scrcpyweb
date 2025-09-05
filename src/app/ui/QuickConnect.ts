@@ -179,9 +179,8 @@ export class QuickConnect extends TypedEmitter<QuickConnectEvents> {
                 this.close();
             }, 1500);
         } else {
-            // Show error message immediately with alert
+            // Show error message immediately
             this.showErrorMessage(`连接失败: ${message}`);
-            alert(`连接失败: ${message}`);
         }
     }
 
