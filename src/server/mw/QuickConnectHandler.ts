@@ -161,18 +161,28 @@ export class QuickConnectHandler {
     };
 
     /**
-     * Delete a device from memory (no file operations)
+     * Delete a device from memory and disconnect from ADB
      */
     public static removeDevice: RequestHandler = async (req, res) => {
         const { id } = req.params;
         
         try {
             // Check if device exists in memory
-            if (!QuickConnectHandler.activeConnections.has(id)) {
+            const connection = QuickConnectHandler.activeConnections.get(id);
+            if (!connection) {
                 return res.status(404).json({
                     success: false,
                     error: 'Device not found'
                 });
+            }
+            
+            // First disconnect from ADB
+            try {
+                await QuickConnectHandler.executeAdbCommand(['disconnect', connection.adbAddress]);
+                console.log(`ADB disconnected from device ${connection.adbAddress}`);
+            } catch (disconnectError) {
+                console.warn(`Failed to disconnect from ADB: ${disconnectError}`);
+                // Continue with removal even if disconnect fails
             }
             
             // Remove from memory
